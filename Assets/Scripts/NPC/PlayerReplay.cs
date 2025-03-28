@@ -4,86 +4,140 @@ using System.Collections.Generic;
 public class PlayerReplay : MonoBehaviour
 {
     [Header("关联对象")]
-    public GameObject player; // 玩家对象
-    public GameObject clone; // 克隆体对象
+    public GameObject player;          // 玩家对象
+    public GameObject clonePrefab;    // 克隆体预制体
 
     [Header("回放设置")]
-    public KeyCode replayKey = KeyCode.V; // 触发回放的按键
+    public KeyCode replayKey = KeyCode.V;  // 触发回放的按键
+    public float recordSpan = 5f;          // 最大记录时长
 
-    private bool isRecording = true; // 是否正在记录
-    private bool isReplaying = false; // 是否正在回放
-    private float startTime; // 记录开始时间
-    private List<Vector3> playerPositions = new List<Vector3>(); // 记录玩家位置
-    private List<float> playerTimes = new List<float>(); // 记录对应时间
+    public bool isReplaying = false;      // 是否正在回放
+    public float startTime;               // 记录开始时间
+    public float replayStartTime;         // 回放开始时间
+    public GameObject currentClone;       // 当前克隆体实例
+
+    // 记录数据
+    private List<Vector3> playerPositions = new List<Vector3>();
+    private List<float> playerTimes = new List<float>();
+
+    // 回放数据副本
+    private List<Vector3> replayPositions = new List<Vector3>();
+    private List<float> replayTimes = new List<float>();
+
+    void Start()
+    {
+        startTime = Time.time;
+    }
 
     void Update()
     {
-        if (isRecording)
-        {
-            // 记录玩家位置和时间
-            RecordPlayerPosition();
-        }
+        // 持续记录玩家位置
+        RecordPlayerPosition();
 
         if (Input.GetKeyDown(replayKey))
         {
-            // 开始回放
             StartReplay();
         }
 
         if (isReplaying)
         {
-            // 回放克隆体移动
             ReplayCloneMovement();
         }
     }
 
-    // 记录玩家位置和时间
     private void RecordPlayerPosition()
     {
+        // 添加新记录
         playerPositions.Add(player.transform.position);
-        playerTimes.Add(Time.time - startTime);
+        float currentRecordTime = Time.time - startTime;
+        playerTimes.Add(currentRecordTime);
+
+        // 移除超出时间范围的旧记录
+        while (playerTimes.Count > 0 &&
+              currentRecordTime - playerTimes[0] > recordSpan)
+        {
+            playerTimes.RemoveAt(0);
+            playerPositions.RemoveAt(0);
+        }
     }
 
-    // 开始回放
     private void StartReplay()
     {
-        isRecording = false; // 停止记录
-        isReplaying = true; // 开始回放
-        startTime = Time.time; // 重置开始时间
+        // 销毁现有克隆体（保持原逻辑）
+        if (currentClone != null)
+        {
+            Destroy(currentClone);
+        }
+
+        // 创建数据副本（保持原逻辑）
+        replayPositions = new List<Vector3>(playerPositions);
+        replayTimes = new List<float>(playerTimes);
+
+        // 新增：计算记录时间偏移量
+        if (replayTimes.Count == 0)
+        {
+            Debug.LogWarning("没有可回放的数据");
+            return;
+        }
+
+        // 关键修改：计算时间基准点
+        float timeOffset = replayTimes[0];
+        float totalDuration = replayTimes[replayTimes.Count - 1] - timeOffset;
+
+        // 调整时间轴为相对时间（从0开始）
+        for (int i = 0; i < replayTimes.Count; i++)
+        {
+            replayTimes[i] -= timeOffset;
+        }
+
+        // 创建克隆体并初始化时间
+        currentClone = Instantiate(clonePrefab, replayPositions[0], Quaternion.identity);
+        isReplaying = true;
+        replayStartTime = Time.time;
     }
 
-    // 回放克隆体移动
     private void ReplayCloneMovement()
     {
-        float currentTime = Time.time - startTime;
+        // 关键修改：使用绝对时间比例计算
+        float elapsedSinceReplayStart = Time.time - replayStartTime;
+        float replayProgress = elapsedSinceReplayStart /
+                              (replayTimes[replayTimes.Count - 1]);
 
-        // 查找当前时间对应的位置
-        for (int i = 0; i < playerTimes.Count - 1; i++)
+        // 边界保护
+        replayProgress = Mathf.Clamp01(replayProgress);
+        float targetTime = replayProgress * replayTimes[replayTimes.Count - 1];
+
+        // 查找时间区间（优化后的逻辑）
+        for (int i = 0; i < replayTimes.Count - 1; i++)
         {
-            if (currentTime >= playerTimes[i] && currentTime < playerTimes[i + 1])
+            if (targetTime >= replayTimes[i] &&
+                targetTime <= replayTimes[i + 1])
             {
-                // 使用插值计算克隆体的位置
-                float t = (currentTime - playerTimes[i]) / (playerTimes[i + 1] - playerTimes[i]);
-                clone.transform.position = Vector3.Lerp(playerPositions[i], playerPositions[i + 1], t);
+                float t = (targetTime - replayTimes[i]) /
+                         (replayTimes[i + 1] - replayTimes[i]);
+
+                currentClone.transform.position = Vector3.Lerp(
+                    replayPositions[i],
+                    replayPositions[i + 1],
+                    t
+                );
                 break;
             }
         }
 
-        // 如果回放完成，停止回放
-        if (currentTime >= playerTimes[playerTimes.Count - 1])
+        // 完成条件判断
+        if (elapsedSinceReplayStart >= replayTimes[replayTimes.Count - 1])
         {
             isReplaying = false;
+            Destroy(currentClone);
             Debug.Log("回放完成");
         }
     }
 
-    // 重置记录
     public void ResetRecording()
     {
         playerPositions.Clear();
         playerTimes.Clear();
         startTime = Time.time;
-        isRecording = true;
-        isReplaying = false;
     }
 }
