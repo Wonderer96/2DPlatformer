@@ -83,7 +83,6 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            // 无激活区域时返回默认状态
             targetPosition = CalculateClampedPosition(null);
             targetSize = defaultSize;
         }
@@ -92,13 +91,15 @@ public class CameraController : MonoBehaviour
     private Vector3 CalculateClampedPosition(CameraZone zone)
     {
         Vector3 target = zone != null ?
-            (Vector3)zone.cameraPosition + zone.transform.position :
+            (Vector3)zone.GetTargetPosition() :
             transform.position;
 
-        // 根据当前实际镜头尺寸计算边界
+        // 保持Z轴不变
+        target.z = transform.position.z;
+
+        // 边界计算（保持原有逻辑）
         float currentSize = mainCamera.orthographicSize;
         float aspect = mainCamera.aspect;
-
         float effectiveHeight = currentSize * 2;
         float effectiveWidth = effectiveHeight * aspect;
 
@@ -110,12 +111,18 @@ public class CameraController : MonoBehaviour
         return new Vector3(
             Mathf.Clamp(target.x, minX, maxX),
             Mathf.Clamp(target.y, minY, maxY),
-            transform.position.z
+            target.z
         );
     }
 
     void LateUpdate()
     {
+        // 每帧检查是否需要更新目标位置（针对跟随区域）
+        if (activeZones.Count > 0 && activeZones[0] is CameraZoneFollow)
+        {
+            UpdateCameraTarget(); // 持续更新目标位置
+        }
+
         // 位置平滑过渡
         transform.position = Vector3.SmoothDamp(
             transform.position,
@@ -124,7 +131,7 @@ public class CameraController : MonoBehaviour
             positionSmoothTime
         );
 
-        // 尺寸平滑过渡
+        // 尺寸平滑过渡（保持原有逻辑）
         mainCamera.orthographicSize = Mathf.Lerp(
             mainCamera.orthographicSize,
             targetSize,

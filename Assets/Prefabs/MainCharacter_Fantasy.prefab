@@ -34,7 +34,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -71.490074, y: -4.803531, z: -6.054819}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8815635426581919919}
@@ -81,8 +81,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 608cf802ad83f3a4185e65dcaf2558bc, type: 3}
-  m_Color: {r: 1, g: 0.3537736, b: 0.3537736, a: 1}
+  m_Sprite: {fileID: 21300000, guid: eeb44a73c7ac89446a14720b0eaab994, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -174,7 +174,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 2.56
+  m_Radius: 0.5
 --- !u!114 &1590365561390724284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,14 +189,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hP: 3
   respawnPoint: {fileID: 0}
-  walkSpeed: 8
-  runSpeed: 12
-  jumpForce: 13
+  walkSpeed: 3
+  runSpeed: 5
+  jumpForce: 5
   groundCheckDistance: 0.1
-  bottomDistance: 1.3
+  bottomDistance: 0.6
   jumpBufferTime: 0.15
   coyoteTime: 0.1
-  scale: 0.5
+  scale: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 59
@@ -263,7 +263,7 @@ Animator:
   m_GameObject: {fileID: 386801816177923045}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: fb49b85a1916b6846aaa39f9521ba6e6, type: 2}
+  m_Controller: {fileID: 9100000, guid: dd88b5a4dbff88b4c95ec96769a275eb, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -365,8 +365,8 @@ Transform:
   m_GameObject: {fileID: 5970213166836110612}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.31, y: 0, z: 0}
-  m_LocalScale: {x: 0.5664833, y: 0.20714885, z: 0.67041004}
+  m_LocalPosition: {x: 0.351, y: 0, z: 0}
+  m_LocalScale: {x: 0.10082837, y: 0.036870424, z: 0.119326286}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8737756005900817706}

@@ -55,6 +55,7 @@ public class MovingPlatform : MonoBehaviour
         {
             collision.transform.SetParent(transform);
         }
+        collision.transform.SetParent(transform);
     }
 
     void OnCollisionExit2D(Collision2D collision)
@@ -63,6 +64,7 @@ public class MovingPlatform : MonoBehaviour
         {
             collision.transform.SetParent(null);
         }
+        collision.transform.SetParent(null);
     }
     // 垂直上下移动
     void VerticalMovement()
