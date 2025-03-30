@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5965241516190126279}
   - component: {fileID: 4842323542990474187}
   - component: {fileID: 6878533247798275146}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SpeedRecorder
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.17871976}
+  m_Offset: {x: 0.0061416626, y: 0.015954733}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -129,7 +129,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 5.02, y: 2.9574394}
+  m_Size: {x: 0.8311043, y: 0.45761538}
   m_EdgeRadius: 0
 --- !u!114 &6878533247798275146
 MonoBehaviour:
@@ -156,9 +156,9 @@ GameObject:
   - component: {fileID: 8615091476220057402}
   - component: {fileID: 6248472316303182458}
   - component: {fileID: 4806379467057054083}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Trampoline
-  m_TagString: Ground
+  m_TagString: Trampoline
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -220,7 +220,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a312e9f1fe7e8f241beef2ffcd889858, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 59ea400f1ea291a46a1cf3485269bb44, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -263,18 +263,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.005097389, y: -0.0030710697}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 5.02, y: 2.6}
+    oldSize: {x: 0.8, y: 0.4}
     newSize: {x: 5.02, y: 2.6}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 5.02, y: 2.6}
+  m_Size: {x: 0.85129356, y: 0.45641565}
   m_EdgeRadius: 0
 --- !u!114 &4806379467057054083
 MonoBehaviour:
@@ -288,9 +288,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d941a6cea9a9654cb01b766d8069ba8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forceMultiplier: 1
+  forceMultiplier: 0.66666
   maxForce: 20
   minSpeed: 5
   velocityDetector: {fileID: 6878533247798275146}
   bounceEffect: {fileID: 0}
   bounceSound: {fileID: 0}
+  normal: {x: 0, y: 0}
+  forceMagnitude: 0

@@ -1,15 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using UnityEngine;
 using UnityEngine.UI;
 
 public class HealthUIManager : MonoBehaviour
 {
     public Image[] heartImages; // 爱心的Image数组
     public int HP; // 生命值变量
-    public MainCharacterController2D mainCharacterController2D;
+    public MainCharacterController mainCharacterController;
 
     void Start()
     {
@@ -22,7 +20,7 @@ public class HealthUIManager : MonoBehaviour
 
     void UpdateHealthUI()
     {
-        HP = mainCharacterController2D.hP;
+        HP = mainCharacterController.hP;
         for (int i = 0; i < heartImages.Length; i++)
         {
             if (i < HP)

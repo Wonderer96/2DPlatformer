@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3468987154972321751}
   - component: {fileID: 6850024215727692520}
   - component: {fileID: 2555971328594744262}
+  - component: {fileID: 3608188716400290286}
   m_Layer: 2
   m_Name: MainCharacter
   m_TagString: Player
@@ -172,6 +173,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2fd6ee31dba6694c952275d364032b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hP: 3
+  respawnPoint: {fileID: 0}
   walkSpeed: 8
   runSpeed: 12
   jumpForce: 10
@@ -201,7 +204,9 @@ MonoBehaviour:
   pullSpeed: 8
   ropeStiffness: 50
   ropeDamping: 5
+  gravityDirection: 1
   ropeKey: 107
+  reverseGravityKey: 108
 --- !u!95 &2555971328594744262
 Animator:
   serializedVersion: 5
@@ -223,6 +228,33 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3608188716400290286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4011202561005573497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a1ea3cf2d7bcc4790cc65a448e6b97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ropeMaxLength: 10
+  ropeShootSpeed: 20
+  ropePositionalCorrection: 15
+  ropeLine: {fileID: 0}
+  ropeLayerMask:
+    serializedVersion: 2
+    m_Bits: 59
+  pullForce: 15
+  snapForce: 30
+  pullSpeed: 8
+  ropeStiffness: 50
+  ropeDamping: 5
+  ropeKey: 107
+  mainController: {fileID: 0}
+  isRopeActive: 0
 --- !u!1 &5067255013498126638
 GameObject:
   m_ObjectHideFlags: 0
