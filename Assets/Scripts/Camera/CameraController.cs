@@ -1,4 +1,3 @@
-// CameraController.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +5,10 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public static CameraController Instance;
+
+    [Header("玩家配置")]
+    [Tooltip("指定玩家对象的Transform")]
+    public Transform playerTransform;
 
     [Header("全局设置")]
     [SerializeField] private Vector2 mapMinBounds = new Vector2(-100, -100);
@@ -17,11 +20,12 @@ public class CameraController : MonoBehaviour
     [Range(0.1f, 2f)] public float sizeSmoothTime = 0.3f;
 
     public Camera mainCamera;
-    private List<CameraZone> activeZones = new List<CameraZone>();
+    public List<CameraZone> activeZones = new List<CameraZone>();
     private Vector3 targetPosition;
     private float targetSize;
     private Vector3 velocity = Vector3.zero;
     private Coroutine activeTransition;
+    private CameraZoneFollow currentFollowZone;
 
     void Awake()
     {
@@ -37,21 +41,33 @@ public class CameraController : MonoBehaviour
         targetSize = defaultSize;
     }
 
+    public void SetCurrentFollowZone(CameraZoneFollow zone)
+    {
+        currentFollowZone = zone;
+    }
+
+    public void ClearCurrentFollowZone()
+    {
+        currentFollowZone = null;
+    }
+
+    public CameraZoneFollow GetCurrentFollowZone()
+    {
+        return currentFollowZone;
+    }
+
     public void RequestZoneSwitch(CameraZone newZone)
     {
         // 如果已经在处理更高优先级的区域则忽略
-        if (activeZones.Count > 0 &&
-            newZone.priority < activeZones[0].priority) return;
+        if (activeZones.Count > 0 && newZone.priority < activeZones[0].priority)
+            return;
 
         // 取消之前的延迟调用
-        if (activeTransition != null) StopCoroutine(activeTransition);
-        activeTransition = StartCoroutine(SwitchWithDelay(newZone));
-    }
+        if (activeTransition != null)
+            StopCoroutine(activeTransition);
 
-    private IEnumerator SwitchWithDelay(CameraZone zone)
-    {
-        yield return new WaitForSeconds(zone.switchDelay);
-        AddZone(zone);
+        // 立即添加新区域（不再延迟）
+        AddZone(newZone);
     }
 
     public void AddZone(CameraZone zone)
@@ -80,6 +96,13 @@ public class CameraController : MonoBehaviour
             CameraZone highestPriority = activeZones[0];
             targetPosition = CalculateClampedPosition(highestPriority);
             targetSize = highestPriority.cameraSize;
+
+            // 新增：立即应用位置变化
+            if (highestPriority is CameraZoneStatic)
+            {
+                transform.position = targetPosition;
+                mainCamera.orthographicSize = targetSize;
+            }
         }
         else
         {
@@ -94,19 +117,32 @@ public class CameraController : MonoBehaviour
             (Vector3)zone.GetTargetPosition() :
             transform.position;
 
-        // 保持Z轴不变
         target.z = transform.position.z;
 
-        // 边界计算（保持原有逻辑）
         float currentSize = mainCamera.orthographicSize;
         float aspect = mainCamera.aspect;
         float effectiveHeight = currentSize * 2;
         float effectiveWidth = effectiveHeight * aspect;
 
-        float minX = mapMinBounds.x + effectiveWidth / 2;
-        float maxX = mapMaxBounds.x - effectiveWidth / 2;
-        float minY = mapMinBounds.y + effectiveHeight / 2;
-        float maxY = mapMaxBounds.y - effectiveHeight / 2;
+        Bounds activeBounds = new Bounds();
+        if (currentFollowZone != null && currentFollowZone.boundaryTrigger != null)
+        {
+            // 使用跟随区域的边界触发器
+            activeBounds = currentFollowZone.boundaryTrigger.bounds;
+        }
+        else
+        {
+            // 使用全局边界
+            activeBounds.SetMinMax(
+                new Vector3(mapMinBounds.x, mapMinBounds.y, -Mathf.Infinity),
+                new Vector3(mapMaxBounds.x, mapMaxBounds.y, Mathf.Infinity)
+            );
+        }
+
+        float minX = activeBounds.min.x + effectiveWidth / 2;
+        float maxX = activeBounds.max.x - effectiveWidth / 2;
+        float minY = activeBounds.min.y + effectiveHeight / 2;
+        float maxY = activeBounds.max.y - effectiveHeight / 2;
 
         return new Vector3(
             Mathf.Clamp(target.x, minX, maxX),
@@ -117,13 +153,11 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        // 每帧检查是否需要更新目标位置（针对跟随区域）
         if (activeZones.Count > 0 && activeZones[0] is CameraZoneFollow)
         {
-            UpdateCameraTarget(); // 持续更新目标位置
+            UpdateCameraTarget();
         }
 
-        // 位置平滑过渡
         transform.position = Vector3.SmoothDamp(
             transform.position,
             targetPosition,
@@ -131,7 +165,6 @@ public class CameraController : MonoBehaviour
             positionSmoothTime
         );
 
-        // 尺寸平滑过渡（保持原有逻辑）
         mainCamera.orthographicSize = Mathf.Lerp(
             mainCamera.orthographicSize,
             targetSize,
@@ -141,7 +174,6 @@ public class CameraController : MonoBehaviour
         );
     }
 
-    // 镜头震动扩展功能
     public void ShakeCamera(float duration, float magnitude)
     {
         StartCoroutine(ShakeRoutine(duration, magnitude));
@@ -163,4 +195,26 @@ public class CameraController : MonoBehaviour
         }
         transform.localPosition = originalPos;
     }
+    // 在CameraController类中添加
+    public void ForceSwitchToStaticZone(CameraZoneStatic staticZone)
+    {
+        // 清除所有区域
+        activeZones.Clear();
+
+        // 强制添加新区域
+        AddZone(staticZone);
+
+        // 立即更新目标位置
+        UpdateCameraTarget();
+
+        // 强制完成位置过渡
+        transform.position = targetPosition;
+        mainCamera.orthographicSize = targetSize;
+
+        // 清除所有跟随区域相关状态
+        ClearCurrentFollowZone();
+    }
+
+    // 修改原有UpdateCameraTarget方法
+
 }

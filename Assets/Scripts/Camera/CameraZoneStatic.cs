@@ -7,7 +7,7 @@ public class CameraZoneStatic : CameraZone
 
     protected override void Awake()
     {
-        base.Awake(); // 确保父类初始化完成
+        base.Awake();
     }
 
     public override Vector2 GetTargetPosition()
@@ -15,11 +15,25 @@ public class CameraZoneStatic : CameraZone
         return (Vector2)transform.position + cameraPositionOffset;
     }
 
+    protected override void OnTriggerEnter2D(Collider2D other)
+    {
+        if (CameraController.Instance != null &&
+            CameraController.Instance.playerTransform != null &&
+            other.transform == CameraController.Instance.playerTransform)
+        {
+            // 强制立即切换区域
+            CameraController.Instance.ForceSwitchToStaticZone(this);
+        }
+    }
+
     protected override void OnDrawGizmosSelected()
     {
-        base.OnDrawGizmosSelected(); // 调用父类的绘制逻辑
+        base.OnDrawGizmosSelected();
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(GetTargetPosition(), 0.5f);
     }
 }
+
+
+

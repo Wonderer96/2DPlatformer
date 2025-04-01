@@ -102,8 +102,10 @@ MonoBehaviour:
   activatorTags:
   - Player
   - InteractiveObject
-  pressDistance: 0.2
-  moveSpeed: 0.2
+  - Untagged
+  - Grabable
+  pressDistance: 0.15
+  moveSpeed: 1
   activeCount: 0
   isActivated: 0
 --- !u!61 &422396700088419764

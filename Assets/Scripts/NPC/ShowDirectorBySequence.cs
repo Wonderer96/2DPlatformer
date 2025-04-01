@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Rendering.LookDev;
 using System.Collections;
 
 public class ShowDirectorBySequence : MonoBehaviour

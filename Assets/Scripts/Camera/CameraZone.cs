@@ -38,7 +38,9 @@ public abstract class CameraZone : MonoBehaviour
 
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (CameraController.Instance != null &&
+            CameraController.Instance.playerTransform != null &&
+            other.transform == CameraController.Instance.playerTransform)
         {
             CameraController.Instance.RequestZoneSwitch(this);
         }
@@ -46,7 +48,9 @@ public abstract class CameraZone : MonoBehaviour
 
     protected virtual void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (CameraController.Instance != null &&
+            CameraController.Instance.playerTransform != null &&
+            other.transform == CameraController.Instance.playerTransform)
         {
             CameraController.Instance.RemoveZone(this);
         }
