@@ -48,6 +48,13 @@ public class MainCharacterController : MonoBehaviour
     [Header("Grappling Reference")]
     public GrapplingGun grapplingGun;
 
+    [Header("Wall Jump Settings")]
+    public float wallJumpForce = 10f;
+    public float wallCheckDistance = 0.5f;
+    public LayerMask wallLayer; // 这里可以重用 groundLayer 或定义一个新的 Layer
+    private bool isNearWall;
+    public Collider2D test; 
+
 
     void Awake()
     {
@@ -66,6 +73,7 @@ public class MainCharacterController : MonoBehaviour
     void Update()
     {
         HandleInput();
+        HandleWallJump();
         UpdateTimers();
         UpdateAnimations();
     }
@@ -73,6 +81,7 @@ public class MainCharacterController : MonoBehaviour
     void FixedUpdate()
     {
         CheckGrounded();
+        CheckWall();
         HandleMovement();
         HandleJump();
         UpdatePhysicsMaterial();
@@ -106,13 +115,8 @@ public class MainCharacterController : MonoBehaviour
 
     public void CheckGrounded()
     {
-        // 射线起点：角色位置向下偏移
         Vector2 rayStart = (Vector2)transform.position + new Vector2(0, -bottomDistance);
-
-        // 根据重力方向决定检测方向
         Vector2 checkDirection = (gravityController.gravityDirection == 1) ? Vector2.down : Vector2.up;
-
-        // 发射射线，检测是否撞到地面
         RaycastHit2D hit = Physics2D.Raycast(
             rayStart,
             checkDirection,
@@ -120,31 +124,29 @@ public class MainCharacterController : MonoBehaviour
             groundLayer
         );
 
-        // 可视化射线，方便调试
         Debug.DrawRay(rayStart, checkDirection * groundCheckDistance, Color.red);
 
-        // 保存之前的着地状态
         bool wasGrounded = isGrounded;
-
-        // 更新是否着地：必须撞到地面层的碰撞体
         isGrounded = hit.collider != null;
 
-
-        // 如果是刚刚着地
         if (isGrounded && !wasGrounded)
         {
-            // 重置跳跃次数和“延迟跳跃时间”
             jumpsRemaining = maxJumps;
             coyoteTimeCounter = coyoteTime;
             animator.SetTrigger("Land");
         }
-        // 如果浮空
-        else if (!isGrounded)
+        else if (!isGrounded && wasGrounded)
         {
-            // 减少延迟时间
-            coyoteTimeCounter = Mathf.Max(coyoteTimeCounter - Time.fixedDeltaTime, 0);
+            // 玩家刚刚离开地面，扣减一次跳跃次数
+            if (jumpsRemaining > 0)
+            {
+                jumpsRemaining--;
+            }
         }
+
+        coyoteTimeCounter = isGrounded ? coyoteTime : Mathf.Max(coyoteTimeCounter - Time.fixedDeltaTime, 0);
     }
+
 
 
     public void HandleMovement()
@@ -244,4 +246,29 @@ public class MainCharacterController : MonoBehaviour
         Gizmos.DrawLine(transform.position,
             transform.position + (Vector3)checkDirection * (groundCheckDistance + 0.1f));
     }
+    void CheckWall()
+    {
+        // 起点偏移，使射线从角色的边缘开始检测
+        Vector2 rayStart = (Vector2)transform.position + new Vector2(transform.localScale.x * 0.5f, 0);
+        Vector2 checkDirection = Vector2.right * transform.localScale.x; // 根据角色面朝方向调整检测方向
+        RaycastHit2D hit = Physics2D.Raycast(rayStart, checkDirection, wallCheckDistance, wallLayer);
+
+        Debug.DrawRay(rayStart, checkDirection * wallCheckDistance, Color.blue);
+
+        isNearWall = hit.collider != null;
+        test = hit.collider;
+
+    }
+
+
+    void HandleWallJump()
+    {
+        if (isNearWall && Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector2 wallJumpDirection = new Vector2(-transform.localScale.x, 1).normalized;
+            rb.velocity = Vector2.zero; // 清除当前速度
+            rb.AddForce(wallJumpDirection * wallJumpForce, ForceMode2D.Impulse);
+        }
+    }
+
 }
