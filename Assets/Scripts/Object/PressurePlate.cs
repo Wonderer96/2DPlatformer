@@ -1,42 +1,34 @@
 using UnityEngine;
 using System.Collections.Generic;
-
-[RequireComponent(typeof(Collider2D))]
-public class PressurePlate : MonoBehaviour
+using System.Collections;
+public class PressurePlate : BaseTrigger
 {
-    [Header("Settings")]
-    [Tooltip("可以触发压力板的标签列表")]
-    public List<string> activatorTags = new List<string>() { "Player" };
+    [Header("Pressure Plate Settings")]
     public float pressDistance = 0.2f;
     public float moveSpeed = 1f;
 
-    [Header("Debug")]
-    [SerializeField] private int activeCount = 0;
-    [SerializeField] private bool isActivated = false;
-
     private Vector3 originalPosition;
     private Vector3 pressedPosition;
+    private int activationCount;
 
-    public bool IsActivated => isActivated;
-
-    void Start()
+    protected override void Awake()
     {
+        base.Awake();
         originalPosition = transform.position;
         pressedPosition = originalPosition - Vector3.up * pressDistance;
-        GetComponent<Collider2D>().isTrigger = true;
     }
 
     void Update()
     {
         UpdatePosition();
-        UpdateActivationState();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (activatorTags.Contains(other.tag))
         {
-            activeCount++;
+            activationCount++;
+            UpdateState();
         }
     }
 
@@ -44,22 +36,19 @@ public class PressurePlate : MonoBehaviour
     {
         if (activatorTags.Contains(other.tag))
         {
-            activeCount = Mathf.Max(0, activeCount - 1);
+            activationCount = Mathf.Max(0, activationCount - 1);
+            UpdateState();
         }
     }
 
-private void UpdatePosition()
+    private void UpdateState()
     {
-        Vector3 targetPosition = activeCount > 0 ? pressedPosition : originalPosition;
-        transform.position = Vector3.Lerp(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        IsActivated = activationCount > 0;
     }
 
-    private void UpdateActivationState()
+    private void UpdatePosition()
     {
-        bool newState = activeCount > 0;
-        if (newState != isActivated)
-        {
-            isActivated = newState;
-        }
+        Vector3 target = IsActivated ? pressedPosition : originalPosition;
+        transform.position = Vector3.Lerp(transform.position, target, moveSpeed * Time.deltaTime);
     }
 }

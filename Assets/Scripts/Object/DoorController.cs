@@ -4,7 +4,7 @@ using System.Linq;
 public class DoorController : MonoBehaviour
 {
     [Header("Settings")]
-    public PressurePlate[] pressurePlates;
+    public BaseTrigger[] pressurePlates;
     public float moveDistance = 3f;
     public float moveSpeed = 1f;
 
