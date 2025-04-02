@@ -20371,6 +20371,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
+      propertyPath: maxJumps
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
+        type: 3}
       propertyPath: jumpForce
       value: 6
       objectReference: {fileID: 0}
@@ -20438,6 +20443,11 @@ PrefabInstance:
         type: 3}
       propertyPath: grappableLayerNumber
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6658648646086128253, guid: cb4d90a57853c724eb98164c7e591a8b,
+        type: 3}
+      propertyPath: gravityMultiplier
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6806143991648710674, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}

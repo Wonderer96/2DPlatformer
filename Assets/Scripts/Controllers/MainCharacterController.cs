@@ -43,7 +43,7 @@ public class MainCharacterController : MonoBehaviour
     public bool isOnBoostPlatform;
     private float jumpBufferCounter;
     private float coyoteTimeCounter;
-    [HideInInspector] public int jumpsRemaining;
+    public int jumpsRemaining;
 
     [Header("Grappling Reference")]
     public GrapplingGun grapplingGun;
@@ -137,7 +137,6 @@ public class MainCharacterController : MonoBehaviour
         }
         else if (!isGrounded && wasGrounded)
         {
-            // 玩家刚刚离开地面，扣减一次跳跃次数
             if (jumpsRemaining > 0)
             {
                 jumpsRemaining--;
