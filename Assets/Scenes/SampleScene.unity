@@ -20364,45 +20364,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainCharacter_Fantasy
       objectReference: {fileID: 0}
-    - target: {fileID: 386801816177923045, guid: cb4d90a57853c724eb98164c7e591a8b,
+    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
-      propertyPath: m_Layer
-      value: 7
+      propertyPath: runSpeed
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
-      propertyPath: maxJumps
+      propertyPath: walkSpeed
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
-      propertyPath: jumpForce
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
       propertyPath: wallJumpForce
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: airAcceleration
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: wallLayer.m_Bits
       value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: wallCheckDistance
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: groundLayer.m_Bits
-      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 2622776438173166050, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
@@ -20434,21 +20409,6 @@ PrefabInstance:
       propertyPath: m_camera
       value: 
       objectReference: {fileID: 357127369}
-    - target: {fileID: 3970101946927581175, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: grappleToAll
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3970101946927581175, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: grappableLayerNumber
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6658648646086128253, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      propertyPath: gravityMultiplier
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 6806143991648710674, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -20499,19 +20459,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5182188330352143353, guid: cb4d90a57853c724eb98164c7e591a8b, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 386801816177923045, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6137153875181466705}
-    - targetCorrespondingSourceObject: {fileID: 386801816177923045, guid: cb4d90a57853c724eb98164c7e591a8b,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6137153875181466704}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb4d90a57853c724eb98164c7e591a8b, type: 3}
 --- !u!4 &800280588211337216
 Transform:
@@ -21671,96 +21622,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 545293231430463421}
   m_PrefabAsset: {fileID: 0}
---- !u!61 &6137153875181466704
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6137153875181466703}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 5581a3a14f5e8834984aadfb3e491fa4, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.000000014901161}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8, y: 0.8}
-    newSize: {x: 5.12, y: 5.12}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.843588, y: 0.75641215}
-  m_EdgeRadius: 0
---- !u!61 &6137153875181466705
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6137153875181466703}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8, y: 0.8}
-    newSize: {x: 5.12, y: 5.12}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.8, y: 0.8}
-  m_EdgeRadius: 0
 --- !u!4 &6137153875181466708 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6806143991648710674, guid: cb4d90a57853c724eb98164c7e591a8b,

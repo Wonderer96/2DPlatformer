@@ -262,7 +262,7 @@ public class MainCharacterController : MonoBehaviour
 
     void HandleWallJump()
     {
-        if (isNearWall && Input.GetKeyDown(KeyCode.Space))
+        if (isNearWall && Input.GetKeyDown(KeyCode.Space)&& !isGrounded)
         {
             Vector2 wallJumpDirection = new Vector2(-transform.localScale.x, 1).normalized;
             rb.velocity = Vector2.zero; // 清除当前速度

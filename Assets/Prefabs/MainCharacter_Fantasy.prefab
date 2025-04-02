@@ -12,12 +12,13 @@ GameObject:
   - component: {fileID: 1466512697645509906}
   - component: {fileID: 3311724329644826615}
   - component: {fileID: 192846223202564068}
-  - component: {fileID: 5182188330352143353}
   - component: {fileID: 1590365561390724284}
   - component: {fileID: 6658648646086128253}
   - component: {fileID: 2622776438173166050}
   - component: {fileID: 6649618791198833249}
-  m_Layer: 0
+  - component: {fileID: 2906726772030232199}
+  - component: {fileID: 3721774506214476176}
+  m_Layer: 7
   m_Name: MainCharacter_Fantasy
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -140,41 +141,6 @@ SpringJoint2D:
   m_Distance: 0.005
   m_DampingRatio: 1
   m_Frequency: 0
---- !u!58 &5182188330352143353
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 386801816177923045}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.5
 --- !u!114 &1590365561390724284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,7 +157,7 @@ MonoBehaviour:
   respawnPoint: {fileID: 0}
   walkSpeed: 3
   runSpeed: 5
-  jumpForce: 5
+  jumpForce: 6
   groundCheckDistance: 0.1
   bottomDistance: 0.6
   jumpBufferTime: 0.15
@@ -199,10 +165,10 @@ MonoBehaviour:
   scale: 1
   groundLayer:
     serializedVersion: 2
-    m_Bits: 59
-  airAcceleration: 25
+    m_Bits: 123
+  airAcceleration: 10
   groundAcceleration: 40
-  maxJumps: 1
+  maxJumps: 2
   jumpCutMultiplier: 0.5
   highFriction: {fileID: 0}
   zeroFriction: {fileID: 0}
@@ -215,6 +181,12 @@ MonoBehaviour:
   isOnBoostPlatform: 0
   jumpsRemaining: 0
   grapplingGun: {fileID: 3970101946927581175}
+  wallJumpForce: 6
+  wallCheckDistance: 0.1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  test: {fileID: 0}
 --- !u!114 &6658648646086128253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,7 +201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gravityDirection: 1
   reverseGravityKey: 108
-  gravityMultiplier: 1.5
+  gravityMultiplier: 2
   mainController: {fileID: 1590365561390724284}
   rb: {fileID: 0}
   originalGravityScale: 0
@@ -274,6 +246,96 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!61 &2906726772030232199
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386801816177923045}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.8, y: 0.8}
+    newSize: {x: 5.12, y: 5.12}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.8, y: 0.8}
+  m_EdgeRadius: 0
+--- !u!61 &3721774506214476176
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386801816177923045}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 5581a3a14f5e8834984aadfb3e491fa4, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.000000014901161}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.8, y: 0.8}
+    newSize: {x: 5.12, y: 5.12}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.843588, y: 0.75641215}
+  m_EdgeRadius: 0
 --- !u!1 &2441273157277808856
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,7 +503,7 @@ MonoBehaviour:
     m_Bits: 64
   grappleRope: {fileID: 8229490858757586887}
   grappleToAll: 1
-  grappableLayerNumber: 9
+  grappableLayerNumber: 3
   m_camera: {fileID: 0}
   gravityController: {fileID: 6658648646086128253}
   gunHolder: {fileID: 6806143991648710674}
