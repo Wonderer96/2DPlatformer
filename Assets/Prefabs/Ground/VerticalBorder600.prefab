@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6815276975740109323}
   - component: {fileID: 5151465304816680734}
-  - component: {fileID: 6153454497071662590}
+  - component: {fileID: -7517558728508438421}
   m_Layer: 3
   m_Name: VerticalBorder600
   m_TagString: Untagged
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &6153454497071662590
+--- !u!61 &-7517558728508438421
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,10 +117,10 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.4, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 1, y: 0.5}
     oldSize: {x: 0.8, y: 6}
     newSize: {x: 0.8, y: 6}
     adaptiveTilingThreshold: 0.5

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3670499298958069263}
   - component: {fileID: 5084912501990289280}
-  - component: {fileID: 4623041953416791363}
+  - component: {fileID: 6869810851513197126}
   m_Layer: 3
   m_Name: Ground
   m_TagString: Ground
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &4623041953416791363
+--- !u!61 &6869810851513197126
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,10 +117,10 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.4}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 1}
     oldSize: {x: 19.2, y: 0.8}
     newSize: {x: 38.455894, y: 4.3}
     adaptiveTilingThreshold: 0.5
