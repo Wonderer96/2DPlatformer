@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4647379383073759365}
   - component: {fileID: 2768644226010933100}
-  - component: {fileID: 5892605310537679725}
-  m_Layer: 0
+  - component: {fileID: 5082150845583786435}
+  m_Layer: 3
   m_Name: left50
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &5892605310537679725
+--- !u!61 &5082150845583786435
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

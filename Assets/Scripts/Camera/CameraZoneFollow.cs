@@ -5,7 +5,7 @@ using System.Collections;
 public class CameraZoneFollow : CameraZone
 {
     [Header("跟随设置")]
-    [Range(0.1f, 5f)] public float followSmoothing = 1f;
+    [Range(0.1f, 99f)] public float followSmoothing = 1f;
     [Tooltip("相对于玩家位置的X轴偏移")] public float xOffset = 0f;
     [Tooltip("相对于玩家位置的Y轴偏移")] public float yOffset = 0f;
 

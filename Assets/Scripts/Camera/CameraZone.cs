@@ -4,7 +4,7 @@ using UnityEngine;
 public abstract class CameraZone : MonoBehaviour
 {
     [Header("»ù´¡ÅäÖÃ")]
-    [Range(5, 20)] public float cameraSize = 10;
+    [Range(1, 20)] public float cameraSize = 10;
     [Range(0, 100)] public int priority = 0;
 
     [Header("¹ı¶ÉÉèÖÃ")]
