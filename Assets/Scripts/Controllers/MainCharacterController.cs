@@ -53,7 +53,15 @@ public class MainCharacterController : MonoBehaviour
     public float wallCheckDistance = 0.5f;
     public LayerMask wallLayer; // 这里可以重用 groundLayer 或定义一个新的 Layer
     private bool isNearWall;
-    public Collider2D test; 
+    public Collider2D test;
+
+    [Header("Ladder Settings")]
+    public float ladderSpeed = 5f;
+    public bool isOnLadder;
+    private bool wasOnLadderLastFrame;
+    private float originalGravityScale;
+
+    private Rigidbody2D _platformRb;
 
 
     void Awake()
@@ -68,6 +76,7 @@ public class MainCharacterController : MonoBehaviour
 
         ropeController = GetComponent<RopeController>();
         gravityController = GetComponent<GravityController>();
+        originalGravityScale = rb.gravityScale;
     }
 
     void Update()
@@ -80,6 +89,13 @@ public class MainCharacterController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!isOnLadder && wasOnLadderLastFrame)
+        {
+            rb.gravityScale = originalGravityScale;
+            gravityController.enabled = true;
+        }
+
+        wasOnLadderLastFrame = isOnLadder;
         CheckGrounded();
         CheckWall();
         HandleMovement();
@@ -144,6 +160,14 @@ public class MainCharacterController : MonoBehaviour
         }
 
         coyoteTimeCounter = isGrounded ? coyoteTime : Mathf.Max(coyoteTimeCounter - Time.fixedDeltaTime, 0);
+        if (isGrounded)
+        {
+            _platformRb = hit.collider.attachedRigidbody;
+        }
+        else
+        {
+            _platformRb = null;
+        }
     }
 
 
@@ -151,34 +175,46 @@ public class MainCharacterController : MonoBehaviour
     public void HandleMovement()
     {
         if (isOnBoostPlatform) return;
+
+        // 梯子移动优先处理
+        if (isOnLadder)
+        {
+            float moveX = Input.GetAxisRaw("Horizontal");
+            float moveY = Input.GetAxisRaw("Vertical");
+            rb.velocity = new Vector2(moveX * ladderSpeed, moveY * ladderSpeed);
+            return;
+        }
+
         float moveInput = Input.GetAxisRaw("Horizontal");
+        float platformSpeed = _platformRb ? _platformRb.velocity.x : 0f;
         bool isGrappling = grapplingGun != null && grapplingGun.grappleRope.enabled;
 
-            // 计算目标速度：根据输入和当前状态（跑步或行走）
-            float targetSpeed = moveInput * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed);
-            float acceleration = isGrounded ? groundAcceleration : airAcceleration;
+        // 计算目标速度：根据输入和当前状态（跑步或行走）
+        float targetSpeed = moveInput * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed) + platformSpeed;
+        float acceleration = isGrounded ? groundAcceleration : airAcceleration;
 
-            // 抓钩状态下降低控制权
-            if (isGrappling)
-            {
-                // 降低加速度和目标速度（此处保留逻辑）
-                acceleration *= 0.2f;
-                targetSpeed *= 0.5f;
-            }
 
-            // 根据输入逐步影响速度：计算速度增量而非直接覆盖
-            float speedIncrement = acceleration * Time.fixedDeltaTime * Mathf.Sign(targetSpeed - rb.velocity.x);
+        // 抓钩状态下降低控制权
+        if (isGrappling)
+        {
+            // 降低加速度和目标速度（此处保留逻辑）
+            acceleration *= 0.2f;
+            targetSpeed *= 0.5f;
+        }
 
-            // 如果距离目标速度足够接近，则直接设置为目标速度（避免“振荡”）
-            if (Mathf.Abs(rb.velocity.x - targetSpeed) <= Mathf.Abs(speedIncrement))
-            {
-                rb.velocity = new Vector2(targetSpeed, rb.velocity.y);
-            }
-            else
-            {
-                // 增加或减少速度，使其逐渐接近目标速度
-                rb.velocity = new Vector2(rb.velocity.x + speedIncrement, rb.velocity.y);
-            }
+        // 根据输入逐步影响速度：计算速度增量而非直接覆盖
+        float speedIncrement = acceleration * Time.fixedDeltaTime * Mathf.Sign(targetSpeed - rb.velocity.x);
+
+        // 如果距离目标速度足够接近，则直接设置为目标速度（避免“振荡”）
+        if (Mathf.Abs(rb.velocity.x - targetSpeed) <= Mathf.Abs(speedIncrement))
+        {
+            rb.velocity = new Vector2(targetSpeed, rb.velocity.y);
+        }
+        else
+        {
+            // 增加或减少速度，使其逐渐接近目标速度
+            rb.velocity = new Vector2(rb.velocity.x + speedIncrement, rb.velocity.y);
+        }
 
 
 
@@ -203,6 +239,8 @@ public class MainCharacterController : MonoBehaviour
 
     public void HandleJump()
     {
+        if (isOnLadder) 
+            return;
         bool canJump = (coyoteTimeCounter > 0 || jumpsRemaining > 0);
         if (jumpBufferCounter > 0 && canJump)
         {
@@ -268,6 +306,22 @@ public class MainCharacterController : MonoBehaviour
             rb.velocity = Vector2.zero; // 清除当前速度
             rb.AddForce(wallJumpDirection * wallJumpForce, ForceMode2D.Impulse);
         }
+    }
+
+
+    public void EnterLadder()
+    {
+        isOnLadder = true;
+        rb.gravityScale = 0;
+        gravityController.enabled = false;
+        jumpsRemaining = maxJumps; // 重置跳跃次数
+    }
+
+    public void ExitLadder()
+    {
+        isOnLadder = false;
+        rb.gravityScale = originalGravityScale;
+        gravityController.enabled = true;
     }
 
 }
