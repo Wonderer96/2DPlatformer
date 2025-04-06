@@ -17,10 +17,12 @@ public class CameraZoneStatic : CameraZone
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
+
         if (CameraController.Instance != null &&
             CameraController.Instance.playerTransform != null &&
             other.transform == CameraController.Instance.playerTransform)
         {
+            gameObject.GetComponent<MeshRenderer>().enabled = false;
             // 强制立即切换区域
             CameraController.Instance.ForceSwitchToStaticZone(this);
         }

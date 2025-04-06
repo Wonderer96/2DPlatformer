@@ -16,6 +16,7 @@ public class MainCharacterController : MonoBehaviour
     public float jumpBufferTime = 0.15f;
     public float coyoteTime = 0.1f;
     public float scale = 1;
+    public float maxFallSpeed = 20f; // 新增：最大下降速度
     public LayerMask groundLayer;
 
     [Header("Air Control")]
@@ -102,6 +103,7 @@ public class MainCharacterController : MonoBehaviour
         HandleMovement();
         HandleJump();
         UpdatePhysicsMaterial();
+        LimitFallSpeed(); // 新增：限制下降速度
     }
 
     private void HandleInput()
@@ -323,6 +325,23 @@ public class MainCharacterController : MonoBehaviour
         isOnLadder = false;
         rb.gravityScale = originalGravityScale;
         gravityController.enabled = true;
+    }
+    private void LimitFallSpeed()
+    {
+        if (!isOnLadder)
+        {
+            // 根据重力方向判断下降方向
+            float currentVerticalSpeed = rb.velocity.y;
+            float maxAllowedSpeed = -maxFallSpeed * Mathf.Sign(gravityController.gravityDirection);
+
+            // 如果重力方向为1（正常向下），则检查是否超过负的最大速度
+            // 如果重力方向为-1（向上），则检查是否超过正的最大速度
+            if ((gravityController.gravityDirection == 1 && currentVerticalSpeed < -maxFallSpeed) ||
+                (gravityController.gravityDirection == -1 && currentVerticalSpeed > maxFallSpeed))
+            {
+                rb.velocity = new Vector2(rb.velocity.x, maxAllowedSpeed);
+            }
+        }
     }
 
 }
