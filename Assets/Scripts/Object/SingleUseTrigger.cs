@@ -9,7 +9,17 @@ public class SingleUseTrigger : BaseTrigger
 
     public float cooldownTime = 2f; // 设置倒计时时间
     private bool isCooldown = false; // 用来记录倒计时状态
+    private Animator animator;
 
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+    void Update()
+    {
+        animator.SetBool("isOn", IsActivated);
+    
+    }
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (activatorTags.Contains(other.tag) && !isCooldown)

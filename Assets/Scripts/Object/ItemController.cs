@@ -20,7 +20,8 @@ public class Item : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            Destroy(this);
+            Destroy(gameObject);
+            GameManager.Instance.coin++;
         }
     }
 }

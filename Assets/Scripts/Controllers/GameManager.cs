@@ -9,6 +9,9 @@ public class GameManager : MonoBehaviour
     public MainCharacterController mainCharacter;
     public GameObject currentRespawnPoint;
     public ZoneManager currentZone;
+    public TextMeshProUGUI coinNumUI;
+
+    public int coin = 0;
 
     void Awake()
     {
@@ -29,6 +32,7 @@ public class GameManager : MonoBehaviour
         {
             ReSpawn();
         }
+        coinNumUI.text = coin.ToString();
     }
 
     void LateUpdate()

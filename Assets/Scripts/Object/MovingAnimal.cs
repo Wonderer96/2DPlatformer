@@ -50,11 +50,13 @@ public class MovingAnimal : MonoBehaviour
             obstacleLayer
         );
 
-        if (hit.collider)
+        // 检查是否命中非 isTrigger 的碰撞器
+        if (hit.collider != null && !hit.collider.isTrigger)
         {
             ChangeDirection();
         }
     }
+
 
     private void ChangeDirection()
     {

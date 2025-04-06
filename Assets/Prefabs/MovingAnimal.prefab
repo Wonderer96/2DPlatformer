@@ -109,7 +109,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 275e4fb2729901749a6ba9470e500431, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c6102e5d73a2d3d458e42435fd722dfb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -159,10 +159,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44094978aa743464bae90a62957709af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
+  moveSpeed: -1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 251
+    m_Bits: 201
   raycastOffset: {x: 0.5, y: 0}
   detectionDistance: 0.1
   playerCheckRadius: 0.6
@@ -199,8 +199,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.8, y: 0.8}
+  m_Offset: {x: 0.0016002655, y: 0.13523841}
+  m_Size: {x: 0.26549911, y: 0.29110956}
   m_Direction: 0
 --- !u!61 &8046034622178059533
 BoxCollider2D:
@@ -234,16 +234,16 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.307836}
+  m_Offset: {x: -0.0137348175, y: 0.18127155}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8, y: 0.8}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 1, y: 0.4}
     newSize: {x: 0.8, y: 0.8}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.8, y: 0.18432796}
+  m_Size: {x: 1.0228043, y: 0.26259804}
   m_EdgeRadius: 0
