@@ -1,12 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
     public GameObject mainCamera;
     public MainCharacterController mainCharacter;
     public GameObject currentRespawnPoint;
+    public ZoneManager currentZone;
 
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
     void Start()
     {
 
@@ -27,7 +39,10 @@ public class GameManager : MonoBehaviour
     {
         // 使用 currentRespawnPoint 的 transform.position 来获取位置
         mainCharacter.gameObject.transform.position = currentRespawnPoint.transform.position;
-        mainCharacter.hP = 3;
+        mainCharacter.hP = mainCharacter.maxHP;
+        currentZone.StopAllSpawning();
+        currentZone.DestroyAllObjects();
+        currentZone.StartSpawning();
     }
 
 }

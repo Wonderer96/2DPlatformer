@@ -34,6 +34,16 @@ public abstract class CameraZone : MonoBehaviour
         }
     }
 
+    protected virtual void OnTriggerStay2D(Collider2D other)
+    {
+        if (CameraController.Instance != null &&
+            CameraController.Instance.playerTransform != null &&
+            other.transform == CameraController.Instance.playerTransform)
+        {
+            CameraController.Instance.currentZone = this;
+        }
+    }
+
     public abstract Vector2 GetTargetPosition();
 
     protected virtual void OnTriggerEnter2D(Collider2D other)
@@ -43,6 +53,7 @@ public abstract class CameraZone : MonoBehaviour
             other.transform == CameraController.Instance.playerTransform)
         {
             CameraController.Instance.RequestZoneSwitch(this);
+            CameraController.Instance.currentZone = this;
         }
     }
 

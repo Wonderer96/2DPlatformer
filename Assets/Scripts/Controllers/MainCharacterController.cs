@@ -3,7 +3,8 @@ using UnityEngine;
 public class MainCharacterController : MonoBehaviour
 {
     [Header("Basic Info")]
-    public int hP = 3;
+    public int maxHP = 1;
+    public int hP = 1;
     public Transform respawnPoint;
 
     [Header("Movement Settings")]

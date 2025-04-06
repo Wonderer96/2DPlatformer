@@ -26,6 +26,7 @@ public class CameraController : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
     private Coroutine activeTransition;
     private CameraZoneFollow currentFollowZone;
+    public CameraZone currentZone;
 
     void Awake()
     {
@@ -151,6 +152,13 @@ public class CameraController : MonoBehaviour
         );
     }
 
+    private void Update()
+    {
+        if(activeZones.Count !=1 || !activeZones.Contains(currentZone))
+        {
+            RequestZoneSwitch(currentZone);
+        }
+    }
     void LateUpdate()
     {
         if (activeZones.Count > 0 && activeZones[0] is CameraZoneFollow)
@@ -214,6 +222,7 @@ public class CameraController : MonoBehaviour
         // 清除所有跟随区域相关状态
         ClearCurrentFollowZone();
     }
+
 
     // 修改原有UpdateCameraTarget方法
 
