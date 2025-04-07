@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 703128535348784884}
   - component: {fileID: 2106893677332061199}
   - component: {fileID: 7244200246434961020}
-  - component: {fileID: 7950366721661979242}
+  - component: {fileID: 5405482980968452374}
   m_Layer: 3
   m_Name: Platform
   m_TagString: Ground
@@ -99,12 +99,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementType: 1
-  moveDistance: 3
+  moveDistance: 4
   moveSpeed: 2
   waypoints: []
   pathMoveSpeed: 1.5
   waypointThreshold: 0.1
---- !u!61 &7950366721661979242
+--- !u!61 &5405482980968452374
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -136,16 +136,16 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.125}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.2, y: 0.31}
+    pivot: {x: 0.5, y: 1}
+    oldSize: {x: 1, y: 0.25}
     newSize: {x: 5.02, y: 2.6}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 0.31}
+  m_Size: {x: 1, y: 0.25}
   m_EdgeRadius: 0
