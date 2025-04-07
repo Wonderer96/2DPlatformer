@@ -8,6 +8,7 @@ public class Trap : MonoBehaviour
     public float cooldownTime = 1.0f; // ƒ¨»œ¿‰»¥ ±º‰Œ™1√Î
     private bool isOnCooldown = false;
     public int damage = 1; // ¿‰»¥◊¥Ã¨
+    public bool selfDestroy = false;
 
     void Start()
     {
@@ -28,6 +29,10 @@ public class Trap : MonoBehaviour
 
             // ∆Ù∂Ø¿‰»¥
             StartCoroutine(StartCooldown());
+        }
+        if(selfDestroy == true)
+        {
+            Destroy(gameObject);
         }
     }
 

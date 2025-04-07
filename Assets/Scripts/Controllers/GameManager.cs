@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
     public void ReSpawn()
     {
         // 使用 currentRespawnPoint 的 transform.position 来获取位置
-        mainCharacter.gameObject.transform.position = currentRespawnPoint.transform.position;
+        mainCharacter.gameObject.transform.position = currentRespawnPoint.transform.position + new Vector3(0, 1, 0);
         mainCharacter.hP = mainCharacter.maxHP;
         currentZone.StopAllSpawning();
         currentZone.DestroyAllObjects();

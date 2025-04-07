@@ -16,7 +16,7 @@ public abstract class BaseTrigger : MonoBehaviour
     protected virtual void Awake()
     {
         triggerCollider = GetComponent<Collider2D>();
-        triggerCollider.isTrigger = true;
+        //triggerCollider.isTrigger = true;
     }
 
     public virtual void ForceDeactivate()

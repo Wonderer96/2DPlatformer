@@ -7,6 +7,7 @@ public class DoorController : MonoBehaviour
     public BaseTrigger[] pressurePlates;
     public float moveDistance = 3f;
     public float moveSpeed = 1f;
+    public bool reverseLogic = false;  // New bool variable to reverse the door logic
 
     private Vector3 originalPosition;
     private Vector3 loweredPosition;
@@ -26,7 +27,8 @@ public class DoorController : MonoBehaviour
 
     private void CheckPressurePlates()
     {
-        shouldLower = pressurePlates.All(plate => plate != null && plate.IsActivated);
+        bool allPlatesActivated = pressurePlates.All(plate => plate != null && plate.IsActivated);
+        shouldLower = reverseLogic ? !allPlatesActivated : allPlatesActivated;
     }
 
     private void MoveDoor()
