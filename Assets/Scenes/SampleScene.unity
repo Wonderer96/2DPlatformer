@@ -52338,7 +52338,7 @@ PrefabInstance:
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
       propertyPath: jumpForce
-      value: 7
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
@@ -52358,12 +52358,27 @@ PrefabInstance:
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
       propertyPath: wallJumpForce
-      value: 8
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
+        type: 3}
+      propertyPath: upJumpMultiplier
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
       propertyPath: wallCheckDistance
-      value: 0.3
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
+        type: 3}
+      propertyPath: groundCheckDistance
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1590365561390724284, guid: cb4d90a57853c724eb98164c7e591a8b,
+        type: 3}
+      propertyPath: nearWallFallingSpeed
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 2622776438173166050, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
@@ -52428,12 +52443,12 @@ PrefabInstance:
     - target: {fileID: 6806143991648710674, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 114.8
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 6806143991648710674, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -34.85
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 6806143991648710674, guid: cb4d90a57853c724eb98164c7e591a8b,
         type: 3}

@@ -27,6 +27,16 @@ public class MainCharacterController : MonoBehaviour
     [Header("Jump Control")]
     public int maxJumps = 2;
     public float jumpCutMultiplier = 0.5f;
+    private bool hasJumpedFromGround;
+
+
+    [Header("Jump Tweaks")]
+    // 当角色下降时额外施加的重力倍率（数值越大，下降越快）
+    public float fallMultiplier = 2.5f;
+    // 当角色上升且未持续按住跳跃键时，使用的重力倍率（使上升更敏捷）
+    public float lowJumpMultiplier = 2.0f;
+    public float upJumpMultiplier = 1.2f; // 当上升阶段持续按住跳跃键时，额外加速下落（使到达最高点更快），默认值可根据需求调整
+
 
     [Header("Physics Materials")]
     public PhysicsMaterial2D highFriction;
@@ -52,6 +62,7 @@ public class MainCharacterController : MonoBehaviour
     public GrapplingGun grapplingGun;
 
     [Header("Wall Jump Settings")]
+    public float nearWallFallingSpeed = -10f;
     public float wallJumpForce = 10f;
     public float wallCheckDistance = 0.5f;
     public LayerMask wallLayer; // 这里可以重用 groundLayer 或定义一个新的 Layer
@@ -83,7 +94,7 @@ public class MainCharacterController : MonoBehaviour
         gravityController = GetComponent<GravityController>();
         originalGravityScale = rb.gravityScale;
 
-        // 记录初始缩放值；这里的 scale 变量保存的是水平方向的初始大小
+        // 记录初始缩放值
         originalScale = transform.localScale;
     }
 
@@ -108,8 +119,12 @@ public class MainCharacterController : MonoBehaviour
         CheckWall();
         HandleMovement();
         HandleJump();
+
+        // 应用更优秀的跳跃物理效果，让上升和下降更加敏捷
+        ApplyBetterJumpGravity();
+
         UpdatePhysicsMaterial();
-        LimitFallSpeed(); // 新增：限制下降速度
+        LimitFallSpeed(); // 限制最大下落速度
     }
 
     private void HandleInput()
@@ -119,6 +134,7 @@ public class MainCharacterController : MonoBehaviour
             jumpBufferCounter = jumpBufferTime;
         }
 
+        // 这里依然保留松开跳跃键后部分剪切速度的逻辑
         if (Input.GetKeyUp(KeyCode.Space))
         {
             bool isAscending = (gravityController.gravityDirection == 1) ?
@@ -140,47 +156,56 @@ public class MainCharacterController : MonoBehaviour
 
     public void CheckGrounded()
     {
-        Vector2 rayStart = (Vector2)transform.position + new Vector2(0, -bottomDistance);
-        Vector2 checkDirection = (gravityController.gravityDirection == 1) ? Vector2.down : Vector2.up;
-        RaycastHit2D hit = Physics2D.Raycast(
-            rayStart,
-            checkDirection,
-            groundCheckDistance,
-            groundLayer
-        );
+        // 使用 Collider2D 的 bounds 属性来获取角色碰撞盒的边界
+        Bounds bounds = col.bounds;
+        // 在碰撞盒的底部偏离少量距离处检测（可根据实际情况调整 offset）
+        Vector2 leftRayOrigin = new Vector2(bounds.min.x, bounds.min.y + 0.1f);
+        Vector2 rightRayOrigin = new Vector2(bounds.max.x, bounds.min.y + 0.1f);
 
-        Debug.DrawRay(rayStart, checkDirection * groundCheckDistance, Color.red);
+        // 分别从左侧和右侧向下发射射线
+        RaycastHit2D leftHit = Physics2D.Raycast(leftRayOrigin, Vector2.down, groundCheckDistance, groundLayer);
+        RaycastHit2D rightHit = Physics2D.Raycast(rightRayOrigin, Vector2.down, groundCheckDistance, groundLayer);
 
+        // 根据任意一条射线检测到碰撞判断是否接地
         bool wasGrounded = isGrounded;
-        isGrounded = hit.collider != null;
+        isGrounded = (leftHit.collider != null || rightHit.collider != null);
 
+        // 保留原有逻辑，比如动画触发等
         if (isGrounded && !wasGrounded)
         {
-            jumpsRemaining = maxJumps;
+            jumpsRemaining = maxJumps - 1; // 地面跳跃占用一次
+            hasJumpedFromGround = false;
             coyoteTimeCounter = coyoteTime;
             animator.SetTrigger("Land");
-
-            // 启动落地时的缩放变化效果：X轴增加10%，Y轴减少10%，0.2秒后还原
             StartCoroutine(LandScaleEffect());
         }
         else if (!isGrounded && wasGrounded)
         {
-            if (jumpsRemaining > 0)
+            // 如果在离地之前没有跳过，那就占用一次跳跃次数
+            if (!hasJumpedFromGround)
             {
                 jumpsRemaining--;
+                hasJumpedFromGround = true; // 防止二次扣除
             }
         }
 
         coyoteTimeCounter = isGrounded ? coyoteTime : Mathf.Max(coyoteTimeCounter - Time.fixedDeltaTime, 0);
+
+        // 如果需要使用平台刚体，可检测其中一个射线的 collider
         if (isGrounded)
         {
-            _platformRb = hit.collider.attachedRigidbody;
+            _platformRb = (leftHit.collider != null ? leftHit.collider.attachedRigidbody : rightHit.collider.attachedRigidbody);
         }
         else
         {
             _platformRb = null;
         }
+
+        // 也可以绘制调试射线
+        Debug.DrawRay(leftRayOrigin, Vector2.down * groundCheckDistance, Color.red);
+        Debug.DrawRay(rightRayOrigin, Vector2.down * groundCheckDistance, Color.red);
     }
+
 
     public void HandleMovement()
     {
@@ -199,11 +224,9 @@ public class MainCharacterController : MonoBehaviour
         float platformSpeed = _platformRb ? _platformRb.velocity.x : 0f;
         bool isGrappling = grapplingGun != null && grapplingGun.grappleRope.enabled;
 
-        // 计算目标速度：根据输入和当前状态（跑步或行走）
         float targetSpeed = moveInput * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed) + platformSpeed;
         float acceleration = isGrounded ? groundAcceleration : airAcceleration;
 
-        // 抓钩状态下降低控制权
         if (isGrappling)
         {
             acceleration *= 0.2f;
@@ -223,7 +246,6 @@ public class MainCharacterController : MonoBehaviour
 
         if (moveInput != 0)
         {
-            // 保持初始水平方向的缩放，注意保留方向性（Mathf.Sign）
             transform.localScale = new Vector3(Mathf.Sign(moveInput) * scale, transform.localScale.y, 1);
         }
     }
@@ -245,22 +267,68 @@ public class MainCharacterController : MonoBehaviour
     {
         if (isOnLadder)
             return;
+
         bool canJump = (coyoteTimeCounter > 0 || jumpsRemaining > 0);
+
         if (jumpBufferCounter > 0 && canJump)
         {
             rb.velocity = new Vector2(rb.velocity.x, 0);
             Vector2 jumpDirection = (gravityController.gravityDirection == 1) ? Vector2.up : Vector2.down;
             rb.AddForce(jumpDirection * jumpForce, ForceMode2D.Impulse);
 
-            jumpsRemaining--;
+            // 如果是地面跳跃（包括 coyoteTime），则设置标志
+            if (coyoteTimeCounter > 0)
+            {
+                hasJumpedFromGround = true;
+            }
+            else
+            {
+                jumpsRemaining--;
+            }
+
             jumpBufferCounter = 0;
             coyoteTimeCounter = 0;
             animator.SetTrigger("Jump");
-
-            // 启动起跳时的缩放变化效果：X轴减少10%（基于初始缩放），Y轴增加10%，0.2秒后还原
             StartCoroutine(JumpScaleEffect());
         }
     }
+
+
+    // 新增方法：根据“更优秀跳跃”原理调整重力效果
+    private void ApplyBetterJumpGravity()
+    {
+        if (isGrounded || isOnLadder)
+            return;
+
+        float gravityStrength = Mathf.Abs(Physics2D.gravity.y);
+
+        if (gravityController.gravityDirection == 1)
+        {
+            if (rb.velocity.y > 0) // 上升阶段
+            {
+                // 应用 upJumpMultiplier 除了低跳效果，确保即便持续按住跳跃键，也能较快达到最高点
+                float multiplier = Input.GetKey(KeyCode.Space) ? upJumpMultiplier : lowJumpMultiplier;
+                rb.velocity += Vector2.up * (-gravityStrength) * (multiplier - 1) * Time.fixedDeltaTime;
+            }
+            else if (rb.velocity.y < 0) // 下落阶段
+            {
+                rb.velocity += Vector2.up * (-gravityStrength) * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            }
+        }
+        else // gravityController.gravityDirection == -1 (反向重力)
+        {
+            if (rb.velocity.y < 0) // 上升阶段（反向）
+            {
+                float multiplier = Input.GetKey(KeyCode.Space) ? upJumpMultiplier : lowJumpMultiplier;
+                rb.velocity += Vector2.down * (-gravityStrength) * (multiplier - 1) * Time.fixedDeltaTime;
+            }
+            else if (rb.velocity.y > 0) // 下落阶段（反向）
+            {
+                rb.velocity += Vector2.down * (-gravityStrength) * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            }
+        }
+    }
+
 
     public void UpdatePhysicsMaterial()
     {
@@ -332,9 +400,24 @@ public class MainCharacterController : MonoBehaviour
     {
         if (!isOnLadder)
         {
+            // 当靠墙时且处于下降状态（考虑正常及反向重力情况），直接设置下降速度为 nearWallFallingSpeed
+            if (isNearWall)
+            {
+                if (gravityController.gravityDirection == 1 && rb.velocity.y < 0)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, nearWallFallingSpeed);
+                    return;
+                }
+                else if (gravityController.gravityDirection == -1 && rb.velocity.y > 0)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, nearWallFallingSpeed);
+                    return;
+                }
+            }
+
+            // 现有的最大下落速度限制逻辑
             float currentVerticalSpeed = rb.velocity.y;
             float maxAllowedSpeed = -maxFallSpeed * Mathf.Sign(gravityController.gravityDirection);
-
             if ((gravityController.gravityDirection == 1 && currentVerticalSpeed < -maxFallSpeed) ||
                 (gravityController.gravityDirection == -1 && currentVerticalSpeed > maxFallSpeed))
             {
@@ -343,27 +426,22 @@ public class MainCharacterController : MonoBehaviour
         }
     }
 
+
     // 协程：起跳时的缩放效果
     private IEnumerator JumpScaleEffect()
     {
-        // 保存当前状态，用于还原（运动中可能会被 HandleMovement 调整 x 分量，所以参照 originalScale 的y）
         Vector3 tempScale = transform.localScale;
-        // 起跳时 X 轴减少 10%（基于原始水平缩放 scale），Y 轴增加 10%
         transform.localScale = new Vector3(Mathf.Sign(transform.localScale.x) * scale * 0.9f, tempScale.y * 1.1f, tempScale.z);
         yield return new WaitForSeconds(0.2f);
-        // 还原为初始缩放，在水平方向保持方向性（由 movement 中更新）
         transform.localScale = originalScale;
     }
 
     // 协程：落地时的缩放效果
     private IEnumerator LandScaleEffect()
     {
-        // 保存当前状态
         Vector3 tempScale = transform.localScale;
-        // 落地时 X 轴增加 10%，Y 轴减少 10%
         transform.localScale = new Vector3(Mathf.Sign(tempScale.x) * Mathf.Abs(tempScale.x) * 1.1f, tempScale.y * 0.9f, tempScale.z);
         yield return new WaitForSeconds(0.2f);
-        // 还原为初始缩放
         transform.localScale = originalScale;
     }
 }
