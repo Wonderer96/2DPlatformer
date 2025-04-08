@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class MainCharacterController : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class MainCharacterController : MonoBehaviour
     public float bottomDistance = 0.2f;
     public float jumpBufferTime = 0.15f;
     public float coyoteTime = 0.1f;
-    public float scale = 1;
+    public float scale = 1; // 初始水平缩放值
     public float maxFallSpeed = 20f; // 新增：最大下降速度
     public LayerMask groundLayer;
 
@@ -65,6 +66,8 @@ public class MainCharacterController : MonoBehaviour
 
     private Rigidbody2D _platformRb;
 
+    // 新增：保存角色初始的完整缩放值，用于还原
+    private Vector3 originalScale;
 
     void Awake()
     {
@@ -79,6 +82,9 @@ public class MainCharacterController : MonoBehaviour
         ropeController = GetComponent<RopeController>();
         gravityController = GetComponent<GravityController>();
         originalGravityScale = rb.gravityScale;
+
+        // 记录初始缩放值；这里的 scale 变量保存的是水平方向的初始大小
+        originalScale = transform.localScale;
     }
 
     void Update()
@@ -153,6 +159,9 @@ public class MainCharacterController : MonoBehaviour
             jumpsRemaining = maxJumps;
             coyoteTimeCounter = coyoteTime;
             animator.SetTrigger("Land");
+
+            // 启动落地时的缩放变化效果：X轴增加10%，Y轴减少10%，0.2秒后还原
+            StartCoroutine(LandScaleEffect());
         }
         else if (!isGrounded && wasGrounded)
         {
@@ -172,8 +181,6 @@ public class MainCharacterController : MonoBehaviour
             _platformRb = null;
         }
     }
-
-
 
     public void HandleMovement()
     {
@@ -196,33 +203,27 @@ public class MainCharacterController : MonoBehaviour
         float targetSpeed = moveInput * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed) + platformSpeed;
         float acceleration = isGrounded ? groundAcceleration : airAcceleration;
 
-
         // 抓钩状态下降低控制权
         if (isGrappling)
         {
-            // 降低加速度和目标速度（此处保留逻辑）
             acceleration *= 0.2f;
             targetSpeed *= 0.5f;
         }
 
-        // 根据输入逐步影响速度：计算速度增量而非直接覆盖
         float speedIncrement = acceleration * Time.fixedDeltaTime * Mathf.Sign(targetSpeed - rb.velocity.x);
 
-        // 如果距离目标速度足够接近，则直接设置为目标速度（避免“振荡”）
         if (Mathf.Abs(rb.velocity.x - targetSpeed) <= Mathf.Abs(speedIncrement))
         {
             rb.velocity = new Vector2(targetSpeed, rb.velocity.y);
         }
         else
         {
-            // 增加或减少速度，使其逐渐接近目标速度
             rb.velocity = new Vector2(rb.velocity.x + speedIncrement, rb.velocity.y);
         }
 
-
-
         if (moveInput != 0)
         {
+            // 保持初始水平方向的缩放，注意保留方向性（Mathf.Sign）
             transform.localScale = new Vector3(Mathf.Sign(moveInput) * scale, transform.localScale.y, 1);
         }
     }
@@ -242,7 +243,7 @@ public class MainCharacterController : MonoBehaviour
 
     public void HandleJump()
     {
-        if (isOnLadder) 
+        if (isOnLadder)
             return;
         bool canJump = (coyoteTimeCounter > 0 || jumpsRemaining > 0);
         if (jumpBufferCounter > 0 && canJump)
@@ -255,6 +256,9 @@ public class MainCharacterController : MonoBehaviour
             jumpBufferCounter = 0;
             coyoteTimeCounter = 0;
             animator.SetTrigger("Jump");
+
+            // 启动起跳时的缩放变化效果：X轴减少10%（基于初始缩放），Y轴增加10%，0.2秒后还原
+            StartCoroutine(JumpScaleEffect());
         }
     }
 
@@ -286,38 +290,35 @@ public class MainCharacterController : MonoBehaviour
         Gizmos.DrawLine(transform.position,
             transform.position + (Vector3)checkDirection * (groundCheckDistance + 0.1f));
     }
+
     void CheckWall()
     {
-        // 起点偏移，使射线从角色的边缘开始检测
         Vector2 rayStart = (Vector2)transform.position + new Vector2(transform.localScale.x * 0.5f, 0);
-        Vector2 checkDirection = Vector2.right * transform.localScale.x; // 根据角色面朝方向调整检测方向
+        Vector2 checkDirection = Vector2.right * transform.localScale.x;
         RaycastHit2D hit = Physics2D.Raycast(rayStart, checkDirection, wallCheckDistance, wallLayer);
 
         Debug.DrawRay(rayStart, checkDirection * wallCheckDistance, Color.blue);
 
         isNearWall = hit.collider != null;
         test = hit.collider;
-
     }
-
 
     void HandleWallJump()
     {
-        if (isNearWall && Input.GetKeyDown(KeyCode.Space)&& !isGrounded)
+        if (isNearWall && Input.GetKeyDown(KeyCode.Space) && !isGrounded)
         {
             Vector2 wallJumpDirection = new Vector2(-transform.localScale.x, 1).normalized;
-            rb.velocity = Vector2.zero; // 清除当前速度
+            rb.velocity = Vector2.zero;
             rb.AddForce(wallJumpDirection * wallJumpForce, ForceMode2D.Impulse);
         }
     }
-
 
     public void EnterLadder()
     {
         isOnLadder = true;
         rb.gravityScale = 0;
         gravityController.enabled = false;
-        jumpsRemaining = maxJumps; // 重置跳跃次数
+        jumpsRemaining = maxJumps;
     }
 
     public void ExitLadder()
@@ -326,16 +327,14 @@ public class MainCharacterController : MonoBehaviour
         rb.gravityScale = originalGravityScale;
         gravityController.enabled = true;
     }
+
     private void LimitFallSpeed()
     {
         if (!isOnLadder)
         {
-            // 根据重力方向判断下降方向
             float currentVerticalSpeed = rb.velocity.y;
             float maxAllowedSpeed = -maxFallSpeed * Mathf.Sign(gravityController.gravityDirection);
 
-            // 如果重力方向为1（正常向下），则检查是否超过负的最大速度
-            // 如果重力方向为-1（向上），则检查是否超过正的最大速度
             if ((gravityController.gravityDirection == 1 && currentVerticalSpeed < -maxFallSpeed) ||
                 (gravityController.gravityDirection == -1 && currentVerticalSpeed > maxFallSpeed))
             {
@@ -344,4 +343,28 @@ public class MainCharacterController : MonoBehaviour
         }
     }
 
+    // 协程：起跳时的缩放效果
+    private IEnumerator JumpScaleEffect()
+    {
+        // 保存当前状态，用于还原（运动中可能会被 HandleMovement 调整 x 分量，所以参照 originalScale 的y）
+        Vector3 tempScale = transform.localScale;
+        // 起跳时 X 轴减少 10%（基于原始水平缩放 scale），Y 轴增加 10%
+        transform.localScale = new Vector3(Mathf.Sign(transform.localScale.x) * scale * 0.9f, tempScale.y * 1.1f, tempScale.z);
+        yield return new WaitForSeconds(0.2f);
+        // 还原为初始缩放，在水平方向保持方向性（由 movement 中更新）
+        transform.localScale = originalScale;
+    }
+
+    // 协程：落地时的缩放效果
+    private IEnumerator LandScaleEffect()
+    {
+        // 保存当前状态
+        Vector3 tempScale = transform.localScale;
+        // 落地时 X 轴增加 10%，Y 轴减少 10%
+        transform.localScale = new Vector3(Mathf.Sign(tempScale.x) * Mathf.Abs(tempScale.x) * 1.1f, tempScale.y * 0.9f, tempScale.z);
+        yield return new WaitForSeconds(0.2f);
+        // 还原为初始缩放
+        transform.localScale = originalScale;
+    }
 }
+
