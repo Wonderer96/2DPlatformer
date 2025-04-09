@@ -7,8 +7,10 @@ public class GrapplingHook : MonoBehaviour
     public GameObject hookPrefab;
     public KeyCode hookKey = KeyCode.Mouse0;
     public float shootSpeed = 20f;
-    public float hookForce = 10f;
+    public float pullAcceleration = 15f;
     public float detectionRadius = 5f;
+    public float minLockDistance = 0.5f;
+    public float staticLockRadius = 0.2f;
 
     [Header("Layers & Tags")]
     public string priorityTag = "GrapplePoint";
@@ -19,13 +21,18 @@ public class GrapplingHook : MonoBehaviour
 
     public GameObject currentHook;
     private bool isGrappling;
-    private Transform hookedTransform;
+    private Transform hookTransform;
     private Rigidbody2D playerRb;
     private Vector2 shootDirection;
+    private bool isStaticTarget;
+    private bool isPositionLocked;
+    private Vector2 lockPosition;
+    private float originalGravityScale;
 
     void Start()
     {
         playerRb = GetComponent<Rigidbody2D>();
+        originalGravityScale = playerRb.gravityScale;
         lineRenderer.enabled = false;
     }
 
@@ -37,17 +44,21 @@ public class GrapplingHook : MonoBehaviour
 
     void FixedUpdate()
     {
-        ApplyGrappleForce();
+        if (isPositionLocked)
+        {
+            MaintainLockPosition();
+        }
+        else
+        {
+            ApplyGrapplePhysics();
+        }
     }
 
     void HandleInput()
     {
         if (Input.GetKeyDown(hookKey))
         {
-            if (currentHook == null)
-            {
-                ShootHook();
-            }
+            TryShootHook();
         }
 
         if (Input.GetKeyUp(hookKey))
@@ -56,20 +67,16 @@ public class GrapplingHook : MonoBehaviour
         }
     }
 
-    void ShootHook()
+    void TryShootHook()
     {
-        // 优先检测附近有特殊tag的物体
+        if (currentHook != null) return;
+
         Collider2D[] priorityTargets = Physics2D.OverlapCircleAll(transform.position, detectionRadius, -1);
         Transform target = FindNearestPriorityTarget(priorityTargets);
 
-        if (target != null)
-        {
-            shootDirection = (target.position - shootPoint.position).normalized;
-        }
-        else
-        {
-            shootDirection = new Vector2(transform.localScale.x, 0);
-        }
+        shootDirection = target != null ?
+            (target.position - shootPoint.position).normalized :
+            new Vector2(transform.localScale.x, 0);
 
         currentHook = Instantiate(hookPrefab, shootPoint.position, Quaternion.identity);
         Hook hookComponent = currentHook.GetComponent<Hook>();
@@ -98,30 +105,84 @@ public class GrapplingHook : MonoBehaviour
         return nearest;
     }
 
-    public void OnHookAttached(Transform hookedTransform, Rigidbody2D hookedRb)
+    public void OnHookAttached(Transform hookTransformRef, bool isStatic)
     {
         isGrappling = true;
-        this.hookedTransform = hookedTransform;
+        hookTransform = hookTransformRef;
+        isStaticTarget = isStatic;
     }
 
-    void ApplyGrappleForce()
+    void ApplyGrapplePhysics()
     {
-        if (!isGrappling || hookedTransform == null) return;
+        if (!isGrappling || hookTransform == null) return;
 
-        Vector2 hookPosition = hookedTransform.position;
-        Vector2 directionToHook = (hookPosition - (Vector2)transform.position).normalized;
+        Vector2 hookPos = hookTransform.position;
+        Vector2 playerPos = playerRb.position;
+        float currentDistance = Vector2.Distance(playerPos, hookPos);
 
-        Rigidbody2D targetRb = hookedTransform.GetComponent<Rigidbody2D>();
-        bool isStatic = targetRb == null || targetRb.bodyType == RigidbodyType2D.Static;
-
-        if (isStatic)
+        if (isStaticTarget)
         {
-            playerRb.AddForce(directionToHook * hookForce, ForceMode2D.Force);
+            HandleStaticPull(hookPos, playerPos, currentDistance);
         }
         else
         {
-            Vector2 directionToPlayer = ((Vector2)transform.position - hookPosition).normalized;
-            targetRb.AddForce(directionToPlayer * hookForce, ForceMode2D.Force);
+            HandleDynamicPull(hookPos, currentDistance);
+        }
+    }
+
+    void HandleStaticPull(Vector2 hookPos, Vector2 playerPos, float currentDistance)
+    {
+        if (currentDistance > minLockDistance)
+        {
+            Vector2 pullDirection = (hookPos - playerPos).normalized;
+            playerRb.AddForce(pullDirection * pullAcceleration, ForceMode2D.Force);
+
+            if (playerRb.velocity.magnitude < 3f)
+            {
+                playerRb.velocity = pullDirection * 3f;
+            }
+        }
+        else
+        {
+            EnterLockState(hookPos);
+        }
+    }
+
+    void HandleDynamicPull(Vector2 hookPos, float currentDistance)
+    {
+        Rigidbody2D targetRb = hookTransform.parent.GetComponent<Rigidbody2D>();
+        if (targetRb == null) return;
+
+        Vector2 pullDirection = ((Vector2)transform.position - hookPos).normalized;
+        targetRb.AddForce(pullDirection * pullAcceleration, ForceMode2D.Force);
+
+        if (currentDistance < minLockDistance)
+        {
+            ReleaseHook();
+        }
+    }
+
+    void EnterLockState(Vector2 targetPosition)
+    {
+        isPositionLocked = true;
+        playerRb.gravityScale = 0;
+        playerRb.velocity = Vector2.zero;
+        lockPosition = targetPosition;
+        playerRb.MovePosition(lockPosition);
+    }
+
+    void MaintainLockPosition()
+    {
+        if (!isGrappling || hookTransform == null) return;
+
+        lockPosition = hookTransform.position;
+
+        Vector2 newPos = Vector2.Lerp(playerRb.position, lockPosition, 20 * Time.fixedDeltaTime);
+        playerRb.MovePosition(newPos);
+
+        if (Vector2.Distance(playerRb.position, lockPosition) < staticLockRadius)
+        {
+            playerRb.velocity = Vector2.zero;
         }
     }
 
@@ -140,11 +201,14 @@ public class GrapplingHook : MonoBehaviour
     public void ReleaseHook()
     {
         isGrappling = false;
+        isPositionLocked = false;
+        playerRb.gravityScale = originalGravityScale;
+
         if (currentHook != null)
         {
             Destroy(currentHook);
             currentHook = null;
         }
-        hookedTransform = null;
+        hookTransform = null;
     }
 }

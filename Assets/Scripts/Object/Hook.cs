@@ -1,4 +1,3 @@
-// Hook.cs
 using UnityEngine;
 
 public class Hook : MonoBehaviour
@@ -30,10 +29,10 @@ public class Hook : MonoBehaviour
 
     void Update()
     {
-        CheckDistance();
+        CheckMaxDistance();
     }
 
-    void CheckDistance()
+    void CheckMaxDistance()
     {
         if (hasAttached) return;
 
@@ -48,14 +47,12 @@ public class Hook : MonoBehaviour
     {
         if (hasAttached) return;
 
-        // 障碍物检测
         if (IsInLayerMask(other.gameObject.layer, obstacleLayer))
         {
             DestroyHook();
             return;
         }
 
-        // 可抓取物体检测
         if (IsInLayerMask(other.gameObject.layer, grappleLayer))
         {
             AttachHook(other.transform);
@@ -76,8 +73,14 @@ public class Hook : MonoBehaviour
         rb.isKinematic = true;
         transform.SetParent(target);
 
-        Rigidbody2D targetRb = target.GetComponent<Rigidbody2D>();
-        grapplingHook.OnHookAttached(target, targetRb);
+        bool isStatic = CheckIfStatic(target);
+        grapplingHook.OnHookAttached(transform, isStatic);
+    }
+
+    bool CheckIfStatic(Transform target)
+    {
+        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
+        return rb == null || rb.bodyType == RigidbodyType2D.Static;
     }
 
     void DestroyHook()
@@ -94,4 +97,3 @@ public class Hook : MonoBehaviour
         }
     }
 }
-
