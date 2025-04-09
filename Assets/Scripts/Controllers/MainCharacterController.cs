@@ -82,6 +82,10 @@ public class MainCharacterController : MonoBehaviour
     private Vector3 lastClimbObjectPos; // 用于保存攀爬对象上一帧的位置
     private Transform originalParent;
 
+    // 用于记录当前角色是否面向左侧（翻转状态）
+    private bool isFacingLeft = false;
+
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -203,6 +207,7 @@ public class MainCharacterController : MonoBehaviour
     {
         if (isOnBoostPlatform) return;
 
+        // 梯子移动优先处理
         if (isOnLadder)
         {
             float moveX = Input.GetAxisRaw("Horizontal");
@@ -225,7 +230,6 @@ public class MainCharacterController : MonoBehaviour
         }
 
         float speedIncrement = acceleration * Time.fixedDeltaTime * Mathf.Sign(targetSpeed - rb.velocity.x);
-
         if (Mathf.Abs(rb.velocity.x - targetSpeed) <= Mathf.Abs(speedIncrement))
         {
             rb.velocity = new Vector2(targetSpeed, rb.velocity.y);
@@ -235,11 +239,14 @@ public class MainCharacterController : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x + speedIncrement, rb.velocity.y);
         }
 
+        // 当有水平输入时更新 isFacingLeft 并设置水平 scale
         if (moveInput != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(moveInput) * scale, transform.localScale.y, 1);
+            isFacingLeft = moveInput < 0;
+            transform.localScale = new Vector3((isFacingLeft ? -scale : scale), transform.localScale.y, 1);
         }
     }
+
 
     private bool CanAirControl()
     {
@@ -429,23 +436,41 @@ public class MainCharacterController : MonoBehaviour
     }
 
 
-    // 协程：起跳缩放效果
+    // 注意：这里 originalScale 是在 Start 中记录的初始 transform.localScale 的值
+    // 而 scale 是你公开定义的控制水平方向大小的数值
+
     private IEnumerator JumpScaleEffect()
     {
-        Vector3 tempScale = transform.localScale;
-        transform.localScale = new Vector3(Mathf.Sign(transform.localScale.x) * scale * 0.9f, tempScale.y * 1.1f, tempScale.z);
+        // 基础横向 scale 由 scale 变量决定，判断角色翻转状态
+        float baseX = isFacingLeft ? -scale : scale;
+        // 使用 originalScale 的 y、z 分量作为基础
+        float baseY = originalScale.y;
+        float baseZ = originalScale.z;
+
+        // 应用跳跃时的缩放效果：横向减少至 0.9 倍，纵向增大至 1.1 倍
+        transform.localScale = new Vector3(baseX * 0.9f, baseY * 1.1f, baseZ);
+
         yield return new WaitForSeconds(0.2f);
-        transform.localScale = originalScale;
+
+        // 效果结束后，恢复为基准数值
+        transform.localScale = new Vector3(baseX, baseY, baseZ);
     }
 
-    // 协程：落地缩放效果
     private IEnumerator LandScaleEffect()
     {
-        Vector3 tempScale = transform.localScale;
-        transform.localScale = new Vector3(Mathf.Sign(tempScale.x) * Mathf.Abs(tempScale.x) * 1.1f, tempScale.y * 0.9f, tempScale.z);
+        float baseX = isFacingLeft ? -scale : scale;
+        float baseY = originalScale.y;
+        float baseZ = originalScale.z;
+
+        // 应用着陆时的缩放效果：横向放大至 1.1 倍，纵向缩小至 0.9 倍
+        transform.localScale = new Vector3(baseX * 1.1f, baseY * 0.9f, baseZ);
+
         yield return new WaitForSeconds(0.2f);
-        transform.localScale = originalScale;
+
+        transform.localScale = new Vector3(baseX, baseY, baseZ);
     }
+
+
 }
 
 
