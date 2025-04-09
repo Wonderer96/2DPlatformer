@@ -13,6 +13,7 @@ public class SingleUseTriggerButton : BaseTrigger
     private Animator animator;
     private bool isPlayerInside = false; // 记录玩家是否在触发器区域内
     public GameObject activateButton;
+    public List<string> TriggerTags = new List<string>() { "Player" };
 
     void Start()
     {
@@ -39,6 +40,11 @@ public class SingleUseTriggerButton : BaseTrigger
             isPlayerInside = true; // 记录玩家进入触发器区域
             activateButton.SetActive(true);
         }
+        if (other.gameObject.layer == LayerMask.NameToLayer("Hook"))
+        {
+            IsActivated = !IsActivated;
+        }
+
     }
 
     private void OnTriggerExit2D(Collider2D other)

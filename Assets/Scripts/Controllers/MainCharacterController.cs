@@ -372,6 +372,11 @@ public class MainCharacterController : MonoBehaviour
             Vector2 wallJumpDirection = new Vector2(-transform.localScale.x, 1).normalized;
             rb.velocity = Vector2.zero;
             rb.AddForce(wallJumpDirection * wallJumpForce, ForceMode2D.Impulse);
+            // 获取墙跳方向（远离墙壁）
+            isFacingLeft = transform.localScale.x > 0; // 如果当前面向右，则墙跳后应该面向左
+
+            // 更新角色缩放
+            transform.localScale = new Vector3((isFacingLeft ? -scale : scale), transform.localScale.y, 1);
         }
     }
 

@@ -110,6 +110,12 @@ public class GrapplingHook : MonoBehaviour
         isGrappling = true;
         hookTransform = hookTransformRef;
         isStaticTarget = isStatic;
+
+        // 新增：静态目标立即取消重力
+        if (isStaticTarget)
+        {
+            playerRb.gravityScale = 0;
+        }
     }
 
     void ApplyGrapplePhysics()
@@ -150,6 +156,7 @@ public class GrapplingHook : MonoBehaviour
 
     void HandleDynamicPull(Vector2 hookPos, float currentDistance)
     {
+        // 保持动态物体原有逻辑
         Rigidbody2D targetRb = hookTransform.parent.GetComponent<Rigidbody2D>();
         if (targetRb == null) return;
 
@@ -165,7 +172,6 @@ public class GrapplingHook : MonoBehaviour
     void EnterLockState(Vector2 targetPosition)
     {
         isPositionLocked = true;
-        playerRb.gravityScale = 0;
         playerRb.velocity = Vector2.zero;
         lockPosition = targetPosition;
         playerRb.MovePosition(lockPosition);
@@ -202,6 +208,8 @@ public class GrapplingHook : MonoBehaviour
     {
         isGrappling = false;
         isPositionLocked = false;
+
+        // 始终恢复重力设置
         playerRb.gravityScale = originalGravityScale;
 
         if (currentHook != null)
@@ -212,3 +220,5 @@ public class GrapplingHook : MonoBehaviour
         hookTransform = null;
     }
 }
+
+// Hook.cs

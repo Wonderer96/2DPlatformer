@@ -79,8 +79,8 @@ public class Hook : MonoBehaviour
 
     bool CheckIfStatic(Transform target)
     {
-        Rigidbody2D rb = target.GetComponent<Rigidbody2D>();
-        return rb == null || rb.bodyType == RigidbodyType2D.Static;
+        Rigidbody2D targetRb = target.GetComponent<Rigidbody2D>();
+        return targetRb == null || targetRb.bodyType == RigidbodyType2D.Static;
     }
 
     void DestroyHook()
@@ -97,3 +97,4 @@ public class Hook : MonoBehaviour
         }
     }
 }
+
