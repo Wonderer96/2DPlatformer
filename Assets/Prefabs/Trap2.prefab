@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 397958679875589326}
   - component: {fileID: 4079918108868084689}
+  - component: {fileID: -7229414655038817349}
   m_Layer: 0
   m_Name: Trap2
   m_TagString: Untagged
@@ -84,3 +85,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-7229414655038817349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4108002728696049363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f4a943afe3a4aa4bb9412f8403d9c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldownTime: 1
+  damage: 1
+  selfDestroy: 0
