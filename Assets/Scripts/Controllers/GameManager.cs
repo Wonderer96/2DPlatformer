@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using NodeCanvas.Editor;
 using TMPro;
 using UnityEngine;
 public class GameManager : MonoBehaviour
@@ -10,6 +11,8 @@ public class GameManager : MonoBehaviour
     public GameObject currentRespawnPoint;
     public ZoneManager currentZone;
     public TextMeshProUGUI coinNumUI;
+    public GameObject clone;
+    public GameObject cloneSpawnPoint;
 
     public int coin = 0;
 
@@ -47,6 +50,7 @@ public class GameManager : MonoBehaviour
         currentZone.StopAllSpawning();
         currentZone.DestroyAllObjects();
         currentZone.StartSpawning();
+        Instantiate(clone, cloneSpawnPoint.transform.position, Quaternion.identity);
     }
 
 }

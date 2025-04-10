@@ -13,11 +13,16 @@ public class MovingAnimal : MonoBehaviour
     [SerializeField] private float playerCheckRadius = 0.1f;
     [SerializeField] private Vector2 playerCheckOffset = new Vector2(0f, 0.5f);
 
-    private Rigidbody2D _rb;
+    public Rigidbody2D _rb;
     private SpriteRenderer _spriteRenderer;
     private int _currentDirection = 1;
     private Transform _playerParent;
     private Transform _currentPlayer;
+
+    [Header("Turn Settings")]
+    [SerializeField] private float maxTurnsPerSecond = 2f;
+    private float lastTurnTime = -Mathf.Infinity;
+
 
     private void Awake()
     {
@@ -41,28 +46,37 @@ public class MovingAnimal : MonoBehaviour
     private void ObstacleDetection()
     {
         Vector2 rayOrigin = (Vector2)transform.position +
-                           new Vector2(raycastOffset.x * _currentDirection, raycastOffset.y);
+                            new Vector2(raycastOffset.x * _currentDirection, raycastOffset.y);
 
-        RaycastHit2D hit = Physics2D.Raycast(
-            rayOrigin,
-            Vector2.right * _currentDirection,
-            detectionDistance,
-            obstacleLayer
-        );
+        ContactFilter2D filter = new ContactFilter2D();
+        filter.SetLayerMask(obstacleLayer);
+        filter.useTriggers = false;
 
-        // 检查是否命中非 isTrigger 的碰撞器
-        if (hit.collider != null && !hit.collider.isTrigger)
+        RaycastHit2D[] hits = new RaycastHit2D[1]; // 只需要一个命中即可
+        int hitCount = Physics2D.Raycast(rayOrigin, Vector2.right * _currentDirection, filter, hits, detectionDistance);
+
+        if (hitCount > 0 && hits[0].collider != null)
         {
             ChangeDirection();
         }
     }
 
 
+
     private void ChangeDirection()
     {
+        float timeSinceLastTurn = Time.time - lastTurnTime;
+        float minInterval = 1f / maxTurnsPerSecond;
+
+        if (timeSinceLastTurn < minInterval)
+            return;
+
+        lastTurnTime = Time.time;
+
         _currentDirection *= -1;
         _spriteRenderer.flipX = !_spriteRenderer.flipX;
     }
+
 
     private void CheckPlayerRiding()
     {

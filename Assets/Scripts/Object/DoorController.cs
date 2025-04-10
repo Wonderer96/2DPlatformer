@@ -16,8 +16,12 @@ public class DoorController : MonoBehaviour
     void Start()
     {
         originalPosition = transform.position;
-        loweredPosition = originalPosition - Vector3.up * moveDistance;
+
+        // 使用门自身的“下方”方向来计算目标位置
+        Vector3 localDown = transform.TransformDirection(Vector3.down);
+        loweredPosition = originalPosition + localDown * moveDistance;
     }
+
 
     void Update()
     {

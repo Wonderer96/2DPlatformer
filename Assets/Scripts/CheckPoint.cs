@@ -33,17 +33,22 @@ public class CheckPoint : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        gameManager.currentRespawnPoint = this.gameObject;
+        // 只有标签为 "Player" 的对象才能触发
+        if (collision.CompareTag("Player"))
+        {
+            gameManager.currentRespawnPoint = this.gameObject;
 
-        // 检查 blueFlag 和 redFlag 是否为空
-        if (blueFlag != null)
-        {
-            blueFlag.SetActive(false);
-        }
-        if (redFlag != null)
-        {
-            redFlag.SetActive(true);
+            // 检查 blueFlag 和 redFlag 是否为空
+            if (blueFlag != null)
+            {
+                blueFlag.SetActive(false);
+            }
+            if (redFlag != null)
+            {
+                redFlag.SetActive(true);
+            }
         }
     }
 }
+
 

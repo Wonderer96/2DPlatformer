@@ -20,6 +20,7 @@ public class ZoneManager : MonoBehaviour
     private MainCharacterController mainCharacter;
     private List<GameObject> spawnedObjects = new List<GameObject>();
     private List<Coroutine> activeCoroutines = new List<Coroutine>();
+    public bool needHandleExit = true;
 
     private void Awake()
     {
@@ -53,7 +54,8 @@ public class ZoneManager : MonoBehaviour
         }
         else
         {
-            HandleObjectExit(other.gameObject);
+            if(needHandleExit)
+            { HandleObjectExit(other.gameObject); }
         }
 
     }
