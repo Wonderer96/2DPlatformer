@@ -103,12 +103,11 @@ public class ZoneManager : MonoBehaviour
 
     public void DestroyAllObjects()
     {
-        // 使用倒序遍历避免修改集合时的索引问题
         for (int i = spawnedObjects.Count - 1; i >= 0; i--)
         {
             if (spawnedObjects[i] != null)
             {
-                Destroy(spawnedObjects[i]);
+                SafeDestroy(spawnedObjects[i]);
             }
         }
         spawnedObjects.Clear();
@@ -119,7 +118,24 @@ public class ZoneManager : MonoBehaviour
         if (spawnedObjects.Contains(exitedObject))
         {
             spawnedObjects.Remove(exitedObject);
-            Destroy(exitedObject);
+            SafeDestroy(exitedObject);
+        }
+    }
+    private void SafeDestroy(GameObject obj)
+    {
+        DetachTaggedChildren(obj.transform, "Player");
+        Destroy(obj);
+    }
+    private void DetachTaggedChildren(Transform parent, string tag)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.CompareTag(tag))
+            {
+                child.SetParent(null); // 解除父子关系
+            }
+            // 递归检查下一层子物体
+            DetachTaggedChildren(child, tag);
         }
     }
 }
