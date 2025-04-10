@@ -52,6 +52,7 @@ public class CameraZoneFollow : CameraZone
             CameraController.Instance.SetCurrentFollowZone(this);
 
             currentFollowPosition = GetRawTargetPosition();
+            gameObject.GetComponent<MeshRenderer>().enabled = false;
         }
     }
 protected override void OnTriggerExit2D(Collider2D other)

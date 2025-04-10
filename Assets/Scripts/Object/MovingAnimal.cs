@@ -116,6 +116,11 @@ public class MovingAnimal : MonoBehaviour
             _currentPlayer = null;
         }
     }
+    private void OnDestroy()
+    {
+        ReleasePlayer();
+    }
+
 
 
     private void OnDrawGizmosSelected()
