@@ -45,6 +45,12 @@ public class GameManager : MonoBehaviour
     public void ReSpawn()
     {
         // 使用 currentRespawnPoint 的 transform.position 来获取位置
+        Rigidbody2D rb = mainCharacter.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f; // 可选：如果你有旋转的话也清掉
+        }
         mainCharacter.gameObject.transform.position = currentRespawnPoint.transform.position + new Vector3(0, 1, 0);
         mainCharacter.hP = mainCharacter.maxHP;
         currentZone.StopAllSpawning();
