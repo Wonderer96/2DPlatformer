@@ -90,11 +90,19 @@ public class GrapplingHook : MonoBehaviour
         Transform nearest = null;
         float minDistance = Mathf.Infinity;
 
+        // 玩家面朝方向
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+
         foreach (Collider2D target in targets)
         {
             if (target.CompareTag(priorityTag))
             {
-                float distance = Vector2.Distance(transform.position, target.transform.position);
+                Vector2 toTarget = target.transform.position - transform.position;
+
+                // 判断是否在玩家面朝的方向
+                if (Mathf.Sign(toTarget.x) != facingDirection) continue;
+
+                float distance = toTarget.magnitude;
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -104,6 +112,7 @@ public class GrapplingHook : MonoBehaviour
         }
         return nearest;
     }
+
 
     public void OnHookAttached(Transform hookTransformRef, bool isStatic)
     {
