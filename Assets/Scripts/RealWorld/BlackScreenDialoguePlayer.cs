@@ -113,6 +113,13 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
                         yield break;
                     }
                     break;
+
+                case DialogueType.ShowImage:
+                    if (segment.targetImageObject != null)
+                    {
+                        yield return StartCoroutine(FadeImageObject(segment.targetImageObject, segment.imageDisplayDuration, fadeDuration));
+                    }
+                    break;
             }
 
             // 淡入字幕
@@ -266,6 +273,37 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
             animator.SetFloat("MoveSpeed", 0f);
         }
     }
+
+    private IEnumerator FadeImageObject(GameObject targetObject, float displayDuration, float fadeDuration)
+    {
+        CanvasGroup canvasGroup = targetObject.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+        {
+            Debug.LogError($"目标图片对象 {targetObject.name} 上没有 CanvasGroup 组件！无法进行淡入淡出。");
+            yield break;
+        }
+
+        if (!targetObject.activeSelf)
+            targetObject.SetActive(true);
+
+        float startAlpha = 0f;
+        float endAlpha = 1f;
+
+        canvasGroup.alpha = startAlpha;
+
+        // 淡入
+        yield return StartCoroutine(FadeCanvasGroup(canvasGroup, startAlpha, endAlpha, fadeDuration));
+
+        // 显示一段时间
+        yield return new WaitForSeconds(displayDuration);
+
+        // 淡出
+        yield return StartCoroutine(FadeCanvasGroup(canvasGroup, endAlpha, startAlpha, fadeDuration));
+
+        // 禁用对象
+        targetObject.SetActive(false);
+    }
 }
 
 [System.Serializable]
@@ -301,6 +339,10 @@ public class DialogueSegment
 
     [Header("Black Screen")]
     public bool useBlackScreen = true; // 每段字幕是否使用黑屏
+
+    [Header("Show Image Settings")]
+    public GameObject targetImageObject;
+    public float imageDisplayDuration = 2f; // 图片显示时长
 }
 
 public enum DialogueType
@@ -309,10 +351,8 @@ public enum DialogueType
     SetActive,
     Teleport,
     MoveTo,
-    ChangeScene
+    ChangeScene,
+    ShowImage // 新增图片显示类型
 }
-
-
-
 
 
