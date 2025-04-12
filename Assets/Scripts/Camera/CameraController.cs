@@ -59,6 +59,10 @@ public class CameraController : MonoBehaviour
 
     public void RequestZoneSwitch(CameraZone newZone)
     {
+        // 添加空引用检查
+        if (newZone == null)
+            return;
+
         // 如果已经在处理更高优先级的区域则忽略
         if (activeZones.Count > 0 && newZone.priority < activeZones[0].priority)
             return;
@@ -92,13 +96,18 @@ public class CameraController : MonoBehaviour
 
     private void UpdateCameraTarget()
     {
+        // 清理已被销毁的区域
+        activeZones.RemoveAll(zone => zone == null);
+
         if (activeZones.Count > 0)
         {
+            // 再次检查确保列表不为空
             CameraZone highestPriority = activeZones[0];
+            if (highestPriority == null) return;
+
             targetPosition = CalculateClampedPosition(highestPriority);
             targetSize = highestPriority.cameraSize;
 
-            // 新增：立即应用位置变化
             if (highestPriority is CameraZoneStatic)
             {
                 transform.position = targetPosition;
@@ -154,7 +163,8 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        if(activeZones.Count !=1 || !activeZones.Contains(currentZone))
+        // 添加currentZone非空检查
+        if (currentZone != null && (activeZones.Count != 1 || !activeZones.Contains(currentZone)))
         {
             RequestZoneSwitch(currentZone);
         }
