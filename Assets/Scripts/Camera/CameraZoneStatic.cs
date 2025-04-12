@@ -22,7 +22,11 @@ public class CameraZoneStatic : CameraZone
             CameraController.Instance.playerTransform != null &&
             other.transform == CameraController.Instance.playerTransform)
         {
-            gameObject.GetComponent<MeshRenderer>().enabled = false;
+            if (gameObject != null && gameObject.GetComponent<MeshRenderer>() != null)
+            {
+                gameObject.GetComponent<MeshRenderer>().enabled = false;
+            }
+
             // 强制立即切换区域
             CameraController.Instance.ForceSwitchToStaticZone(this);
         }

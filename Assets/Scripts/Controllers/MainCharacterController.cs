@@ -215,7 +215,7 @@ public class MainCharacterController : MonoBehaviour
             rb.velocity = new Vector2(moveX * ladderSpeed, moveY * ladderSpeed);
             return;
         }
-
+        if (isClimbing) return;
         float moveInput = Input.GetAxisRaw("Horizontal");
         float platformSpeed = _platformRb ? _platformRb.velocity.x : 0f;
         bool isGrappling = grapplingGun != null && grapplingGun.grappleRope.enabled;
