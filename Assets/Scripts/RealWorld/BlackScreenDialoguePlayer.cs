@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class BlackScreenSubtitleTrigger2D : MonoBehaviour
 {
+    [Header("Character Control")]
+    public MainCharacterControllerRealWorld mainCharacter;
     [Header("References")]
     public GameObject displayObject;
     public TextMeshProUGUI messageText;
@@ -55,6 +57,9 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
     private IEnumerator PlayDialogues()
     {
         bool isBlackScreenVisible = false;
+        {
+            mainCharacter.enabled = false;
+        }
 
         foreach (DialogueSegment segment in dialogues)
         {
@@ -78,8 +83,12 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
             switch (segment.type)
             {
                 case DialogueType.SetActive:
-                    if (segment.targetObject)
-                        segment.targetObject.SetActive(segment.setActiveValue);
+                    // 处理多个对象的SetActive
+                    foreach (var pair in segment.setActivePairs)
+                    {
+                        if (pair.targetObject != null)
+                            pair.targetObject.SetActive(pair.setActiveValue);
+                    }
                     break;
 
                 case DialogueType.Teleport:
@@ -89,7 +98,12 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
 
                 case DialogueType.MoveTo:
                     if (segment.targetObject && segment.teleportTargetPosition)
-                        yield return StartCoroutine(MoveObject(segment.targetObject, segment.teleportTargetPosition.position, segment.moveDuration));
+                        yield return StartCoroutine(MoveObject(
+                            segment.targetObject,
+                            segment.teleportTargetPosition.position,
+                            segment.moveDuration,
+                            segment.faceForward,
+                            segment.flipX)); // 新增flipX参数
                     break;
 
                 case DialogueType.ChangeScene:
@@ -105,10 +119,24 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
             yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 0f, 1f, fadeDuration));
 
             // 打字机效果
-            foreach (char c in segment.text)
+            if (segment.reverseDisplay)
             {
-                messageText.text += c;
-                yield return new WaitForSeconds(typeSpeed);
+                // 反向显示：完整文字逐个减少
+                messageText.text = segment.text;
+                for (int i = segment.text.Length; i >= 0; i--)
+                {
+                    messageText.text = segment.text.Substring(0, i);
+                    yield return new WaitForSeconds(typeSpeed);
+                }
+            }
+            else
+            {
+                // 正向显示：逐个字符显示
+                foreach (char c in segment.text)
+                {
+                    messageText.text += c;
+                    yield return new WaitForSeconds(typeSpeed);
+                }
             }
 
             yield return new WaitForSeconds(segment.duration);
@@ -121,6 +149,10 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
         if (isBlackScreenVisible)
             yield return StartCoroutine(FadeImageAlpha(blackOverlay, 1f, 0f, fadeDuration));
 
+        if (mainCharacter != null)
+        {
+            mainCharacter.enabled = true;
+        }
         messageText.text = "";
     }
 
@@ -154,9 +186,10 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
         group.alpha = to;
     }
 
-    private IEnumerator MoveObject(GameObject obj, Vector3 targetPos, float duration)
+    private IEnumerator MoveObject(GameObject obj, Vector3 targetPos, float duration, bool faceForward, bool flipX)
     {
         Vector3 start = obj.transform.position;
+        Vector3 originalScale = obj.transform.localScale;
         float t = 0f;
 
         while (t < duration)
@@ -164,6 +197,55 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
             t += Time.deltaTime;
             float lerpT = Mathf.Clamp01(t / duration);
             obj.transform.position = Vector3.Lerp(start, targetPos, lerpT);
+
+            // 2D朝向控制
+            Vector3 moveDirection = (targetPos - obj.transform.position).normalized;
+            if (moveDirection != Vector3.zero)
+            {
+                if (flipX)
+                {
+                    // 通过X轴缩放控制朝向
+                    float xScale = Mathf.Abs(originalScale.x);
+                    if (faceForward)
+                    {
+                        obj.transform.localScale = new Vector3(
+                            moveDirection.x > 0 ? xScale : -xScale,
+                            originalScale.y,
+                            originalScale.z
+                        );
+                    }
+                    else
+                    {
+                        obj.transform.localScale = new Vector3(
+                            moveDirection.x > 0 ? -xScale : xScale,
+                            originalScale.y,
+                            originalScale.z
+                        );
+                    }
+                }
+                else
+                {
+                    // 通过Y轴缩放控制朝向（如果需要）
+                    float yScale = Mathf.Abs(originalScale.y);
+                    if (faceForward)
+                    {
+                        obj.transform.localScale = new Vector3(
+                            originalScale.x,
+                            moveDirection.y > 0 ? yScale : -yScale,
+                            originalScale.z
+                        );
+                    }
+                    else
+                    {
+                        obj.transform.localScale = new Vector3(
+                            originalScale.x,
+                            moveDirection.y > 0 ? -yScale : yScale,
+                            originalScale.z
+                        );
+                    }
+                }
+            }
+
             yield return null;
         }
 
@@ -172,11 +254,18 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
 }
 
 [System.Serializable]
+public class SetActivePair
+{
+    public GameObject targetObject;
+    public bool setActiveValue;
+}
+[System.Serializable]
 public class DialogueSegment
 {
     [TextArea]
     public string text;
     public float duration = 2f;
+    public bool reverseDisplay = false; // 新增反向显示开关
 
     public DialogueType type = DialogueType.TextOnly;
 
@@ -184,11 +273,13 @@ public class DialogueSegment
     public GameObject targetObject;
 
     [Header("SetActive Settings")]
-    public bool setActiveValue;
+    public List<SetActivePair> setActivePairs = new List<SetActivePair>(); // 修改为支持多个对象
 
     [Header("Teleport / MoveTo Settings")]
     public Transform teleportTargetPosition;
     public float moveDuration = 1f;
+    public bool faceForward = true; // 新增：移动时是否面朝方向
+    public bool flipX = true; // 默认使用X轴翻转来控制朝向
 
     [Header("ChangeScene Settings")]
     public string sceneToLoad;

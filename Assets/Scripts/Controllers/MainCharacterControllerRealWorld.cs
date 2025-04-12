@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BasicMovementControllerRealWorld : MonoBehaviour
+public class MainCharacterControllerRealWorld : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 8f;

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,9 +10,9 @@ public class TriggerTextDisplay : MonoBehaviour
     public class DialogueSegment
     {
         [TextArea] public string text;
-        public GameObject targetPosition; // ÿ�λ���ʾ��λ��
-        public float duration = 3f; // ÿ�λ���ʾʱ��
-    }
+        public GameObject targetPosition; // 每段话显示的位置
+        public float duration = 3f; // 每段话显示时间
+    }
 
     [Header("UI Elements")]
     public GameObject imageObject;
@@ -25,9 +25,11 @@ public class TriggerTextDisplay : MonoBehaviour
 
     private bool playerInside = false;
     private bool dialogueStarted = false;
-    private CanvasGroup textCanvasGroup;
+    private bool segmentPlaying = false; // 新增：标记是否正在播放对话段落
+    private CanvasGroup textCanvasGroup;
+    private Coroutine currentDialogueCoroutine; // 保存当前对话协程
 
-    private void Start()
+    private void Start()
     {
         imageObject.SetActive(false);
         messageText.text = "";
@@ -44,7 +46,7 @@ public class TriggerTextDisplay : MonoBehaviour
     {
         if (playerInside && !dialogueStarted && Input.GetKeyDown(KeyCode.J))
         {
-            StartCoroutine(PlayDialogues());
+            currentDialogueCoroutine = StartCoroutine(PlayDialogues());
         }
     }
 
@@ -55,31 +57,37 @@ public class TriggerTextDisplay : MonoBehaviour
 
         foreach (DialogueSegment segment in dialogues)
         {
-            // ����λ��
-            messageText.rectTransform.position = segment.targetPosition.transform.position;
+            segmentPlaying = true; // 开始播放段落
 
-            // ��ʼ��������ʾ
-            messageText.text = "";
+            // 设置位置
+            messageText.rectTransform.position = segment.targetPosition.transform.position;
+
+            // 初始化文字显示
+            messageText.text = "";
             textCanvasGroup.alpha = 0f;
 
-            // ����
-            yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 0f, 1f, fadeDuration));
+            // 淡入
+            yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 0f, 1f, fadeDuration));
 
-            // ����Ч��
-            foreach (char c in segment.text)
+            // 打字效果
+            foreach (char c in segment.text)
             {
                 messageText.text += c;
                 yield return new WaitForSeconds(typeSpeed);
             }
 
-            // �ȴ��öγ���ʱ��
-            yield return new WaitForSeconds(segment.duration);
+            // 等待该段持续时间
+            yield return new WaitForSeconds(segment.duration);
 
-            // ����
-            yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 1f, 0f, fadeDuration));
-        }
+            // 淡出
+            yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 1f, 0f, fadeDuration));
+
+            segmentPlaying = false; // 段落播放结束
+        }
 
         messageText.text = "";
+        dialogueStarted = false;
+        currentDialogueCoroutine = null;
     }
 
     private IEnumerator FadeCanvasGroup(CanvasGroup group, float from, float to, float duration)
@@ -109,9 +117,20 @@ public class TriggerTextDisplay : MonoBehaviour
         {
             playerInside = false;
             imageObject.SetActive(false);
-            messageText.text = "";
-            textCanvasGroup.alpha = 0f;
-            dialogueStarted = false;
+            if (segmentPlaying && currentDialogueCoroutine != null)
+            {
+                StopCoroutine(currentDialogueCoroutine);
+                messageText.text = "";
+                textCanvasGroup.alpha = 0f;
+                dialogueStarted = false;
+                segmentPlaying = false;
+                currentDialogueCoroutine = null;
+            }
+            else if (!dialogueStarted)
+            {
+                messageText.text = "";
+                textCanvasGroup.alpha = 0f;
+            }
         }
     }
 }
