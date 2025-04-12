@@ -192,6 +192,16 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
         Vector3 originalScale = obj.transform.localScale;
         float t = 0f;
 
+        Animator animator = obj.GetComponent<Animator>();
+        bool isPlayer = obj.layer == LayerMask.NameToLayer("Player");
+        bool moveSpeedChanged = false;
+
+        if (isPlayer && animator != null)
+        {
+            animator.SetFloat("MoveSpeed", 1f);
+            moveSpeedChanged = true;
+        }
+
         while (t < duration)
         {
             t += Time.deltaTime;
@@ -250,6 +260,11 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
         }
 
         obj.transform.position = targetPos;
+
+        if (moveSpeedChanged && animator != null)
+        {
+            animator.SetFloat("MoveSpeed", 0f);
+        }
     }
 }
 
