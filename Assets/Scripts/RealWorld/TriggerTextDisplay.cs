@@ -1,22 +1,30 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class TriggerTextDisplay : MonoBehaviour
 {
+    [System.Serializable]
+    public class DialogueSegment
+    {
+        [TextArea] public string text;
+        public GameObject targetPosition; // 每段话显示的位置
+        public float duration = 3f; // 每段话显示时间
+    }
+
     [Header("UI Elements")]
     public GameObject imageObject;
     public TextMeshPro messageText;
 
-    [Header("Text Settings")]
-    [TextArea] public string fullMessage;
+    [Header("Dialogue Settings")]
+    public List<DialogueSegment> dialogues = new List<DialogueSegment>();
     public float typeSpeed = 0.05f;
-    public float messageDuration = 3f;
-    public float fadeDuration = 0.5f; // 淡入淡出时间
+    public float fadeDuration = 0.5f;
 
     private bool playerInside = false;
-    private bool messageShown = false;
+    private bool dialogueStarted = false;
     private CanvasGroup textCanvasGroup;
 
     private void Start()
@@ -24,7 +32,6 @@ public class TriggerTextDisplay : MonoBehaviour
         imageObject.SetActive(false);
         messageText.text = "";
 
-        // 尝试获取 CanvasGroup，如果没有就自动添加
         textCanvasGroup = messageText.GetComponent<CanvasGroup>();
         if (textCanvasGroup == null)
         {
@@ -35,45 +42,56 @@ public class TriggerTextDisplay : MonoBehaviour
 
     private void Update()
     {
-        if (playerInside && !messageShown && Input.GetKeyDown(KeyCode.J))
+        if (playerInside && !dialogueStarted && Input.GetKeyDown(KeyCode.J))
         {
-            StartCoroutine(DisplayMessage());
+            StartCoroutine(PlayDialogues());
         }
     }
 
-    private IEnumerator DisplayMessage()
+    private IEnumerator PlayDialogues()
     {
-        messageShown = true;
+        dialogueStarted = true;
         imageObject.SetActive(false);
-        messageText.text = "";
-        textCanvasGroup.alpha = 0f;
 
-        // 淡入文字
-        yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 0f, 1f, fadeDuration));
-
-        for (int i = 0; i < fullMessage.Length; i++)
+        foreach (DialogueSegment segment in dialogues)
         {
-            messageText.text += fullMessage[i];
-            yield return new WaitForSeconds(typeSpeed);
+            // 设置位置
+            messageText.rectTransform.position = segment.targetPosition.transform.position;
+
+            // 初始化文字显示
+            messageText.text = "";
+            textCanvasGroup.alpha = 0f;
+
+            // 淡入
+            yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 0f, 1f, fadeDuration));
+
+            // 打字效果
+            foreach (char c in segment.text)
+            {
+                messageText.text += c;
+                yield return new WaitForSeconds(typeSpeed);
+            }
+
+            // 等待该段持续时间
+            yield return new WaitForSeconds(segment.duration);
+
+            // 淡出
+            yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 1f, 0f, fadeDuration));
         }
 
-        yield return new WaitForSeconds(messageDuration);
-
-        // 淡出文字
-        yield return StartCoroutine(FadeCanvasGroup(textCanvasGroup, 1f, 0f, fadeDuration));
         messageText.text = "";
     }
 
-    private IEnumerator FadeCanvasGroup(CanvasGroup group, float startAlpha, float endAlpha, float duration)
+    private IEnumerator FadeCanvasGroup(CanvasGroup group, float from, float to, float duration)
     {
-        float timer = 0f;
-        while (timer < duration)
+        float t = 0f;
+        while (t < duration)
         {
-            timer += Time.deltaTime;
-            group.alpha = Mathf.Lerp(startAlpha, endAlpha, timer / duration);
+            t += Time.deltaTime;
+            group.alpha = Mathf.Lerp(from, to, t / duration);
             yield return null;
         }
-        group.alpha = endAlpha;
+        group.alpha = to;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -92,10 +110,11 @@ public class TriggerTextDisplay : MonoBehaviour
             playerInside = false;
             imageObject.SetActive(false);
             messageText.text = "";
-            messageShown = false;
             textCanvasGroup.alpha = 0f;
+            dialogueStarted = false;
         }
     }
 }
+
 
 
