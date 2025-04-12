@@ -6,15 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/FantasyWorld_01.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
     path: Assets/Scenes/RealWorld_01.unity
     guid: aa07c3969c5ef224397d3893a63dee70
   - enabled: 1
+    path: Assets/Scenes/FantasyWorld_01.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
     path: Assets/Scenes/RealWorld_02.unity
-    guid: 285fd899a627f5e41b3b6cf8809e43e2
+    guid: e9f81a91843f8b74b83238265b310bf0
   - enabled: 1
     path: Assets/Scenes/FantasyWorld_02.unity
-    guid: 3f77bd57adea1ae44b9af6a443d074cf
+    guid: 3470affbe3fe10740b4566c801eafa7b
   m_configObjects: {}

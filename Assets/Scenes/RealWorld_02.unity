@@ -1902,7 +1902,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d4399db1742cecc4bb2087a7cee77741, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ae65867345a96054e84e76bbb0f684d1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -3480,7 +3480,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 2
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -5325,7 +5325,8 @@ MonoBehaviour:
     imageDisplayDuration: 2
   typeSpeed: 0.05
   fadeDuration: 0.5
-  activationKey: 106
+  activationKey: 108
+  startShow: 0
 --- !u!61 &1077167393
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5358,7 +5359,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.15531349, y: 0.3106265}
+  m_Offset: {x: 0.7353821, y: 0.3106265}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -5369,7 +5370,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.446022, y: 4.427603}
+  m_Size: {x: 6.8246, y: 4.427603}
   m_EdgeRadius: 0
 --- !u!212 &1077167394
 SpriteRenderer:
@@ -6485,12 +6486,12 @@ PrefabInstance:
     - target: {fileID: 7188914428165897097, guid: b3986ca369e94204898256c693572c55,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 31.25
+      value: 106
       objectReference: {fileID: 0}
     - target: {fileID: 7188914428165897097, guid: b3986ca369e94204898256c693572c55,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.5
+      value: 19.25
       objectReference: {fileID: 0}
     - target: {fileID: 7188914428165897097, guid: b3986ca369e94204898256c693572c55,
         type: 3}
@@ -8052,6 +8053,7 @@ MonoBehaviour:
   typeSpeed: 0.05
   fadeDuration: 0.5
   activationKey: 106
+  startShow: 0
 --- !u!61 &1708175552
 BoxCollider2D:
   m_ObjectHideFlags: 0

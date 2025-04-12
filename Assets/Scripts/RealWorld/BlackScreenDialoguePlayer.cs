@@ -23,12 +23,25 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
     [Header("Input")]
     public KeyCode activationKey = KeyCode.J;
 
+    [Header("Start On Awake")]
+    public bool startShow = false; // 新增的变量
+
     private bool playerInside = false;
     private bool hasPlayed = false;
 
+    private void Start()
+    {
+        displayObject.SetActive(false); // 初始隐藏提示
+        if (startShow)
+        {
+            StartCoroutine(PlayDialoguesAndDestroyOnStart());
+            hasPlayed = true; // 标记为已播放
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !startShow && !hasPlayed)
         {
             playerInside = true;
             displayObject.SetActive(true);
@@ -37,7 +50,7 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !startShow)
         {
             playerInside = false;
             displayObject.SetActive(false);
@@ -46,19 +59,44 @@ public class BlackScreenSubtitleTrigger2D : MonoBehaviour
 
     private void Update()
     {
-        if (playerInside && !hasPlayed && Input.GetKeyDown(activationKey))
+        if (playerInside && !hasPlayed && Input.GetKeyDown(activationKey) && !startShow)
         {
             hasPlayed = true;
             displayObject.SetActive(false);
-            StartCoroutine(PlayDialogues());
+            StartCoroutine(PlayDialoguesAndDestroy());
         }
+    }
+
+    private IEnumerator PlayDialoguesAndDestroyOnStart()
+    {
+        // 如果第一个对话片段需要黑屏，且黑屏当前不可见，则进行淡入
+        if (dialogues.Count > 0 && dialogues[0].useBlackScreen && blackOverlay != null && !blackOverlay.gameObject.activeSelf)
+        {
+            blackOverlay.gameObject.SetActive(true);
+            yield return StartCoroutine(FadeImageAlpha(blackOverlay, 0f, 1f, fadeDuration));
+        }
+        yield return StartCoroutine(PlayDialogues());
+        Destroy(gameObject);
+    }
+
+    private IEnumerator PlayDialoguesAndDestroy()
+    {
+        yield return StartCoroutine(PlayDialogues());
+        Destroy(gameObject);
     }
 
     private IEnumerator PlayDialogues()
     {
         bool isBlackScreenVisible = false;
+        if (mainCharacter != null)
         {
             mainCharacter.enabled = false;
+        }
+
+        // 初始化黑屏状态，如果 startShow 为 true 且 blackOverlay 初始激活
+        if (startShow && blackOverlay != null && blackOverlay.gameObject.activeSelf)
+        {
+            isBlackScreenVisible = true;
         }
 
         foreach (DialogueSegment segment in dialogues)
