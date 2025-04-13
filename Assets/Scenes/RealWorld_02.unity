@@ -6101,15 +6101,20 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 247873958156428144, guid: 5cf5a301e02d7b143afe466e63be7825,
         type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 247873958156428144, guid: 5cf5a301e02d7b143afe466e63be7825,
+        type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 696f101a49b926f46980b3ae51d82b89,
+      objectReference: {fileID: 11400000, guid: 316a2e96dbb7b8f4189698f68dd87dd7,
         type: 2}
     - target: {fileID: 247873958156428144, guid: 5cf5a301e02d7b143afe466e63be7825,
         type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 3753476984615836869, guid: 696f101a49b926f46980b3ae51d82b89,
+      objectReference: {fileID: -1058940109871008033, guid: 316a2e96dbb7b8f4189698f68dd87dd7,
         type: 2}
     - target: {fileID: 247873958156428144, guid: 5cf5a301e02d7b143afe466e63be7825,
         type: 3}
@@ -6120,7 +6125,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 3753476984615836869, guid: 696f101a49b926f46980b3ae51d82b89,
+      objectReference: {fileID: -1058940109871008033, guid: 316a2e96dbb7b8f4189698f68dd87dd7,
         type: 2}
     - target: {fileID: 5451359382823232368, guid: 5cf5a301e02d7b143afe466e63be7825,
         type: 3}
@@ -6145,7 +6150,7 @@ PrefabInstance:
     - target: {fileID: 6330991939992586154, guid: 5cf5a301e02d7b143afe466e63be7825,
         type: 3}
       propertyPath: dialogues.Array.data[0].text
-      value: "\u521A\u521A\u6211\u597D\u50CF\u770B\u5230\u2026\u2026"
+      value: "\u521A\u521A\u5728\u770B\u5230\u662F\u2026\u2026"
       objectReference: {fileID: 0}
     - target: {fileID: 6330991939992586154, guid: 5cf5a301e02d7b143afe466e63be7825,
         type: 3}

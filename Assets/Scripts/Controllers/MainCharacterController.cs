@@ -58,13 +58,18 @@ public class MainCharacterController : MonoBehaviour
     public GrapplingGun grapplingGun;
 
     [Header("Wall Jump Settings")]
-    // 已不再使用 nearWallFallingSpeed 功能
-    public float nearWallFallingSpeed = -10f;
     public float wallJumpForce = 10f;
     public float wallCheckDistance = 0.5f;
     public LayerMask wallLayer;
     private bool isNearWall;
     public Collider2D test;
+
+    [Header("Wall Jump Effect Settings")]
+    public GameObject wallJumpEffect;         // 墙跳时的特效预制体
+    public Transform wallJumpEffectPoint;       // 播放特效的位置
+
+    [Header("Wall Slide Settings")]
+    public float wallSlideFallSpeed = 5f;       // 当靠墙下落时的最大下落速度（单位：绝对值，正数）
 
     [Header("Ladder Settings")]
     public float ladderSpeed = 5f;
@@ -84,7 +89,6 @@ public class MainCharacterController : MonoBehaviour
 
     // 用于记录当前角色是否面向左侧（翻转状态）
     private bool isFacingLeft = false;
-
 
     void Awake()
     {
@@ -205,7 +209,9 @@ public class MainCharacterController : MonoBehaviour
 
     public void HandleMovement()
     {
-        if (isOnBoostPlatform) return;
+        // 当角色处于空中并靠近墙壁时，不响应 WASD 控制移动
+        if (!isGrounded && isNearWall)
+            return;
 
         // 梯子移动优先处理
         if (isOnLadder)
@@ -216,6 +222,7 @@ public class MainCharacterController : MonoBehaviour
             return;
         }
         if (isClimbing) return;
+
         float moveInput = Input.GetAxisRaw("Horizontal");
         float platformSpeed = _platformRb ? _platformRb.velocity.x : 0f;
         bool isGrappling = grapplingGun != null && grapplingGun.grappleRope.enabled;
@@ -246,7 +253,6 @@ public class MainCharacterController : MonoBehaviour
             transform.localScale = new Vector3((isFacingLeft ? -scale : scale), transform.localScale.y, 1);
         }
     }
-
 
     private bool CanAirControl()
     {
@@ -367,16 +373,23 @@ public class MainCharacterController : MonoBehaviour
 
     void HandleWallJump()
     {
+        // 当靠墙且不在地面时（且按下跳跃键）触发墙跳
         if (isNearWall && Input.GetKeyDown(KeyCode.Space) && !isGrounded)
         {
+            // 计算墙跳方向（远离墙壁，同时向上）
             Vector2 wallJumpDirection = new Vector2(-transform.localScale.x, 1).normalized;
             rb.velocity = Vector2.zero;
             rb.AddForce(wallJumpDirection * wallJumpForce, ForceMode2D.Impulse);
-            // 获取墙跳方向（远离墙壁）
-            isFacingLeft = transform.localScale.x > 0; // 如果当前面向右，则墙跳后应该面向左
 
-            // 更新角色缩放
+            // 更新角色朝向：如果当前面向右，则墙跳后面向左，反之亦然
+            isFacingLeft = transform.localScale.x > 0;
             transform.localScale = new Vector3((isFacingLeft ? -scale : scale), transform.localScale.y, 1);
+
+            // 墙跳瞬间播放特效（检查特效预制体及播放点是否已设置）
+            if (wallJumpEffect != null && wallJumpEffectPoint != null)
+            {
+                Instantiate(wallJumpEffect, wallJumpEffectPoint.position, Quaternion.identity);
+            }
         }
     }
 
@@ -395,8 +408,7 @@ public class MainCharacterController : MonoBehaviour
         gravityController.enabled = true;
     }
 
-    // 新的 LimitFallSpeed 方法：替换原有近墙下降速度功能，实现当 canClimb 为 true 且按住 J 时跟随检测到的墙体位移，忽略重力
-    // 修改后的 LimitFallSpeed 方法：采用重新设置父物体的方式实现完全同步移动
+    // 修改后的 LimitFallSpeed 方法：支持攀爬、靠墙下落减速以及原有最大下落速度限制逻辑
     private void LimitFallSpeed()
     {
         if (!isOnLadder)
@@ -419,7 +431,7 @@ public class MainCharacterController : MonoBehaviour
             }
             else
             {
-                // 如果之前已经处于攀爬状态但不再满足条件，则恢复原状
+                // 如果之前处于攀爬状态但不再满足条件，则恢复原状
                 if (isClimbing)
                 {
                     isClimbing = false;
@@ -429,17 +441,30 @@ public class MainCharacterController : MonoBehaviour
                 }
             }
 
-            // 这里继续保持原有的最大下落速度限制逻辑
-            float currentVerticalSpeed = rb.velocity.y;
-            float maxAllowedSpeed = -maxFallSpeed * Mathf.Sign(gravityController.gravityDirection);
-            if ((gravityController.gravityDirection == 1 && currentVerticalSpeed < -maxFallSpeed) ||
-                (gravityController.gravityDirection == -1 && currentVerticalSpeed > maxFallSpeed))
+            // 当靠墙时，应用较慢的下落速度限制
+            if (isNearWall)
             {
-                rb.velocity = new Vector2(rb.velocity.x, maxAllowedSpeed);
+                // allowedFallSpeed 为靠墙下落时的速度（正负取决于重力方向）
+                float allowedFallSpeed = -wallSlideFallSpeed * Mathf.Sign(gravityController.gravityDirection);
+                if ((gravityController.gravityDirection == 1 && rb.velocity.y < allowedFallSpeed) ||
+                    (gravityController.gravityDirection == -1 && rb.velocity.y > allowedFallSpeed))
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, allowedFallSpeed);
+                }
+            }
+            else
+            {
+                // 原有最大下落速度限制逻辑
+                float currentVerticalSpeed = rb.velocity.y;
+                float maxAllowedSpeed = -maxFallSpeed * Mathf.Sign(gravityController.gravityDirection);
+                if ((gravityController.gravityDirection == 1 && currentVerticalSpeed < -maxFallSpeed) ||
+                    (gravityController.gravityDirection == -1 && currentVerticalSpeed > maxFallSpeed))
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, maxAllowedSpeed);
+                }
             }
         }
     }
-
 
     // 注意：这里 originalScale 是在 Start 中记录的初始 transform.localScale 的值
     // 而 scale 是你公开定义的控制水平方向大小的数值
@@ -474,9 +499,8 @@ public class MainCharacterController : MonoBehaviour
 
         transform.localScale = new Vector3(baseX, baseY, baseZ);
     }
-
-
 }
+
 
 
 
